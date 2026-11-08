@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net6.0-windows</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <PlatformTarget>x64</PlatformTarget>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="../../WindowsTouchBar-master/WindowsTouchBar/Device/WslTouchBarBridge.cs" Link="WslTouchBarBridge.cs" />
+    <Compile Include="../../WindowsTouchBar-master/WindowsTouchBar/Device/IDisplayTransport.cs" Link="IDisplayTransport.cs" />
+    <Compile Include="../../WindowsTouchBar-master/WindowsTouchBar/ITouchInput.cs" Link="ITouchInput.cs" />
+    <Compile Include="../../WindowsTouchBar-master/WindowsTouchBar/Events/TouchEventArgs.cs" Link="TouchEventArgs.cs" />
+  </ItemGroup>
+</Project>

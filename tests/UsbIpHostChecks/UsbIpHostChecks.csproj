@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType><TargetFramework>net6.0-windows</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings><Nullable>enable</Nullable>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="../../WindowsTouchBar-master/WindowsTouchBar/Device/UsbIpMultiplexer.cs" Link="UsbIpMultiplexer.cs" />
+    <Compile Include="../../WindowsTouchBar-master/WindowsTouchBar/Device/UsbIpTouchBarTransport.cs" Link="UsbIpTouchBarTransport.cs" />
+    <Compile Include="../../WindowsTouchBar-master/WindowsTouchBar/Device/IDisplayTransport.cs" Link="IDisplayTransport.cs" />
+    <Compile Include="../../WindowsTouchBar-master/WindowsTouchBar/ITouchInput.cs" Link="ITouchInput.cs" />
+    <Compile Include="../../WindowsTouchBar-master/WindowsTouchBar/Events/TouchEventArgs.cs" Link="TouchEventArgs.cs" />
+  </ItemGroup>
+</Project>

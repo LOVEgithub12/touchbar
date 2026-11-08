@@ -1,0 +1,66 @@
+# Build output and local dependency folders
+**/bin/
+**/obj/
+**/.dotnet/
+**/app/
+**/runtimes/
+**/pydeps/
+tools/**/python/
+**/hidprobe/
+**/probe/
+**/controls-build/
+tools/downloads/
+
+# Compiled and packaged artifacts
+*.dll
+*.exe
+*.pdb
+*.dylib
+*.so
+*.sys
+*.cat
+*.msi
+*.zip
+*.7z
+
+# Runtime output and generated evidence
+*.log
+*.jsonl
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.bmp
+*.htm
+*.html
+tools/**/[Bb]acklightResearch/*.txt
+tools/**/FnKeyResearch/*.disasm.txt
+tools/**/research/**/*.txt
+TouchBar-USBIP/build-hashes.json
+TouchBar-USBIP/foobar-*.json
+TouchBar-USBIP/visualizer-preference.json
+tools/**/app-build-check/
+tools/**/CksReadOnlyStatus.json
+tools/**/FirmwareReadOnlyStatus.json
+tools/**/InboxDriverProbe.json
+tools/**/InheritedDriverProbe.json
+tools/**/wsl-preflight.json
+tools/**/repositories.json
+
+# Local snapshots, verification bundles, and handoff archives
+backup-20261108/
+verification-20261108/
+verification-usbip-20261108/
+handoff/
+HANDOFF.md
+237b28fb-3237-41ad-bf54-7f22a0828fcc.htm
+DFRDisplayKm-driver/*.cer
+
+# Editor and OS files
+.vs/
+.vscode/
+*.user
+*.suo
+*.userosscache
+Thumbs.db
+Desktop.ini

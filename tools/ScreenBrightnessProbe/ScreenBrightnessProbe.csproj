@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net6.0-windows</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <PlatformTarget>x64</PlatformTarget>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="../../WindowsTouchBar-master/WindowsTouchBar/Interop/BrightlessAPI.cs" Link="BrightlessAPI.cs" />
+    <PackageReference Include="System.Management" Version="6.0.0" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,770 @@
+{
+  "sha": "4c57407bd8149d16b0bd82c44fac7c8d2d408826",
+  "url": "https://api.github.com/repos/reihnxx/lyricbar/git/trees/4c57407bd8149d16b0bd82c44fac7c8d2d408826",
+  "tree": [
+    {
+      "path": ".github",
+      "mode": "040000",
+      "type": "tree",
+      "sha": "93998cdf8baa1187636fa28a6b68d55a59ec7bb5",
+      "url": "https://api.github.com/repos/reihnxx/lyricbar/git/trees/93998cdf8baa1187636fa28a6b68d55a59ec7bb5"
+    },
+    {
+      "path": ".github/workflows",
+      "mode": "040000",
+      "type": "tree",
+      "sha": "6b5f427f4adebce3673df1e2cf0dad23bbd9fc95",
+      "url": "https://api.github.com/repos/reihnxx/lyricbar/git/trees/6b5f427f4adebce3673df1e2cf0dad23bbd9fc95"
+    },
+    {
+      "path": ".github/workflows/ci.yml",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "ea4ac7ce8c35a176a2d3d5fe3cc7efbb40dc507e",
+      "size": 505,
+      "url": "https://api.github.com/repos/reihnxx/lyricbar/git/blobs/ea4ac7ce8c35a176a2d3d5fe3cc7efbb40dc507e"
+    },
+    {
+      "path": ".github/workflows/pages.yml",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "f10a7aab46674bd46395fa4ee725f6fcb7407b40",
+      "size": 957,
+      "url": "https://api.github.com/repos/reihnxx/lyricbar/git/blobs/f10a7aab46674bd46395fa4ee725f6fcb7407b40"
+    },
+    {
+      "path": ".github/workflows/release.yml",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "2f2d2cf53762fbab589510b62007ed7d40b96a84",
+      "size": 785,
+      "url": "https://api.github.com/repos/reihnxx/lyricbar/git/blobs/2f2d2cf53762fbab589510b62007ed7d40b96a84"
+    },
+    {
+      "path": ".gitignore",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "cd92a0245779395498ff510445f55fded476dc71",
+      "size": 61,
+      "url": "https://api.github.com/repos/reihnxx/lyricbar/git/blobs/cd92a0245779395498ff510445f55fded476dc71"
+    },
+    {
+      "path": "CONTRIBUTING.md",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "d5d904566accb7d7233e94a50e2952c35847deaf",
+      "size": 2397,
+      "url": "https://api.github.com/repos/reihnxx/lyricbar/git/blobs/d5d904566accb7d7233e94a50e2952c35847deaf"
+    },
+    {
+      "path": "LICENSE",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "ca49b96b10228a36162793973e2ec880defffe90",
+      "size": 1096,
+      "url": "https://api.github.com/repos/reihnxx/lyricbar/git/blobs/ca49b96b10228a36162793973e2ec880defffe90"
+    },
+    {
+      "path": "README.id.md",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "8cd38eaf4bc1929f4914c5da4823ca42e1d6b97d",
+      "size": 11849,
+      "url": "https://api.github.com/repos/reihnxx/lyricbar/git/blobs/8cd38eaf4bc1929f4914c5da4823ca42e1d6b97d"
+    },
+    {
+      "path": "README.md",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "e46f030e2fecbe00e12f033334aa0d3d0a60c0b1",
+      "size": 11444,
+      "url": "https://api.github.com/repos/reihnxx/lyricbar/git/blobs/e46f030e2fecbe00e12f033334aa0d3d0a60c0b1"
+    },
+    {
+      "path": "apps",
+      "mode": "040000",
+      "type": "tree",
+      "sha": "265c880882e4f396b7daa115a15c4c8f65c7f186",
+      "url": "https://api.github.com/repos/reihnxx/lyricbar/git/trees/265c880882e4f396b7daa115a15c4c8f65c7f186"
+    },
+    {
+      "path": "apps/macos",
+      "mode": "040000",
+      "type": "tree",
+      "sha": "4a28daa1bce83688e5934991288042baac2b1d9d",
+      "url": "https://api.github.com/repos/reihnxx/lyricbar/git/trees/4a28daa1bce83688e5934991288042baac2b1d9d"
+    },
+    {
+      "path": "apps/macos/Package.swift",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "bf776ccb7f5c2e7583545b2a4a857c8a049b8a2f",
+      "size": 655,
+      "url": "https://api.github.com/repos/reihnxx/lyricbar/git/blobs/bf776ccb7f5c2e7583545b2a4a857c8a049b8a2f"
+    },
+    {
+      "path": "apps/macos/Resources",
+      "mode": "040000",
+      "type": "tree",
+      "sha": "75d26f6a252cd20de6af6ad7ed4952d35ae84ce9",
+      "url": "https://api.github.com/repos/reihnxx/lyricbar/git/trees/75d26f6a252cd20de6af6ad7ed4952d35ae84ce9"
+    },
+    {
+      "path": "apps/macos/Resources/AppIcon.icns",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "a84ef234d41f79906b452de91fc1385a8615a0ee",
+      "size": 223940,
+      "url": "https://api.github.com/repos/reihnxx/lyricbar/git/blobs/a84ef234d41f79906b452de91fc1385a8615a0ee"
+    },
+    {
+      "path": "apps/macos/Resources/Info.plist",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "aeb7ec4cd72a2f8776963d01b1a96a079c0b00b3",
+      "size": 1009,
+      "url": "https://api.github.com/repos/reihnxx/lyricbar/git/blobs/aeb7ec4cd72a2f8776963d01b1a96a079c0b00b3"
+    },
+    {
+      "path": "apps/macos/Sources",
+      "mode": "040000",
+      "type": "tree",
+      "sha": "8e4e10c5919cbe318be9db49e0e9efe16dcb2a98",
+      "url": "https://api.github.com/repos/reihnxx/lyricbar/git/trees/8e4e10c5919cbe318be9db49e0e9efe16dcb2a98"
+    },
+    {
+      "path": "apps/macos/Sources/LyricBar",
+      "mode": "040000",
+      "type": "tree",
+      "sha": "9145ba9ac7e2cf1a9b63792fdbbf1c134175bb7c",
+      "url": "https://api.github.com/repos/reihnxx/lyricbar/git/trees/9145ba9ac7e2cf1a9b63792fdbbf1c134175bb7c"
+    },
+    {
+      "path": "apps/macos/Sources/LyricBar/AppDelegate.swift",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "cd125f3cd6410d78b54ef471b389920b20d376c6",
+      "size": 2656,
+      "url": "https://api.github.com/repos/reihnxx/lyricbar/git/blobs/cd125f3cd6410d78b54ef471b389920b20d376c6"
+    },
+    {
+      "path": "apps/macos/Sources/LyricBar/LyricServer.swift",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "8f8c4d264c9949786d03a8db3892a3f7852f858b",
+      "size": 4761,
+      "url": "https://api.github.com/repos/reihnxx/lyricbar/git/blobs/8f8c4d264c9949786d03a8db3892a3f7852f858b"
+    },
+    {
+      "path": "apps/macos/Sources/LyricBar/LyricStore.swift",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "e29c967569d20033f59758e2fd396ed5fbeaf61c",
+      "size": 3169,
+      "url": "https://api.github.com/repos/reihnxx/lyricbar/git/blobs/e29c967569d20033f59758e2fd396ed5fbeaf61c"
+    },
+    {
+      "path": "apps/macos/Sources/LyricBar/LyricView.swift",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "f873cc50e3b66e68673a2a50db58baeedd28ef54",
+      "size": 6248,
+      "url": "https://api.github.com/repos/reihnxx/lyricbar/git/blobs/f873cc50e3b66e68673a2a50db58baeedd28ef54"
+    },
+    {
+      "path": "apps/macos/Sources/LyricBar/Messages.swift",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "a6ec4b290548c90b24e0d6d860d1b0b8caae1827",
+      "size": 3106,
+      "url": "https://api.github.com/repos/reihnxx/lyricbar/git/blobs/a6ec4b290548c90b24e0d6d860d1b0b8caae1827"
+    },
+    {
+      "path": "apps/macos/Sources/LyricBar/Onboarding.swift",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "d3ac7657bc2a43f80dea9f86141ea75f8c24b790",
+      "size": 2028,
+      "url": "https://api.github.com/repos/reihnxx/lyricbar/git/blobs/d3ac7657bc2a43f80dea9f86141ea75f8c24b790"
+    },
+    {
+      "path": "apps/macos/Sources/LyricBar/Settings.swift",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "f49bd5661471b72267f2568077120ea627e1821c",
+      "size": 1481,
+      "url": "https://api.github.com/repos/reihnxx/lyricbar/git/blobs/f49bd5661471b72267f2568077120ea627e1821c"
+    },
+    {
+      "path": "apps/macos/Sources/LyricBar/StatusItemController.swift",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "a5b21a051d7d459cab70d830d4d0d83030b68a5c",
+      "size": 8778,
+      "url": "https://api.github.com/repos/reihnxx/lyricbar/git/blobs/a5b21a051d7d459cab70d830d4d0d83030b68a5c"
+    },
+    {
+      "path": "apps/macos/Sources/LyricBar/TouchBarController.swift",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "0f030eb0b105cdf450fdb6f0cfb2f3c3ccbff44b",
+      "size": 3563,
+      "url": "https://api.github.com/repos/reihnxx/lyricbar/git/blobs/0f030eb0b105cdf450fdb6f0cfb2f3c3ccbff44b"
+    },
+    {
+      "path": "apps/macos/Sources/LyricBar/main.swift",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "f186ac153632d0a6c96468d12ee56c8c64af8504",
+      "size": 196,
+      "url": "https://api.github.com/repos/reihnxx/lyricbar/git/blobs/f186ac153632d0a6c96468d12ee56c8c64af8504"
+    },
+    {
+      "path": "apps/macos/Sources/TouchBarPrivate",
+      "mode": "040000",
+      "type": "tree",
+      "sha": "0ccf4c47c7765d877e35c90d2e9cb29213a9bf5d",
+      "url": "https://api.github.com/repos/reihnxx/lyricbar/git/trees/0ccf4c47c7765d877e35c90d2e9cb29213a9bf5d"
+    },
+    {
+      "path": "apps/macos/Sources/TouchBarPrivate/TouchBarPrivate.m",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "1a64d7bc52e94d18d8f13ab47d05840b44f9911d",
+      "size": 2898,
+      "url": "https://api.github.com/repos/reihnxx/lyricbar/git/blobs/1a64d7bc52e94d18d8f13ab47d05840b44f9911d"
+    },
+    {
+      "path": "apps/macos/Sources/TouchBarPrivate/include",
+      "mode": "040000",
+      "type": "tree",
+      "sha": "1c583152e59eb9386c69cf31ff8d9dfbdfe8de88",
+      "url": "https://api.github.com/repos/reihnxx/lyricbar/git/trees/1c583152e59eb9386c69cf31ff8d9dfbdfe8de88"
+    },
+    {
+      "path": "apps/macos/Sources/TouchBarPrivate/include/TouchBarPrivate.h",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "2d887e6e1a1575f6541a4813ddda6e5e81f53617",
+      "size": 1330,
+      "url": "https://api.github.com/repos/reihnxx/lyricbar/git/blobs/2d887e6e1a1575f6541a4813ddda6e5e81f53617"
+    },
+    {
+      "path": "docs",
+      "mode": "040000",
+      "type": "tree",
+      "sha": "2842973aa4a8ececaf42aefdaf32e4e5ac2893be",
+      "url": "https://api.github.com/repos/reihnxx/lyricbar/git/trees/2842973aa4a8ececaf42aefdaf32e4e5ac2893be"
+    },
+    {
+      "path": "docs/ARCHITECTURE.md",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "c6cbeaf7948280264fafc74ed6d1f5e672e80c9c",
+      "size": 4924,
+      "url": "https://api.github.com/repos/reihnxx/lyricbar/git/blobs/c6cbeaf7948280264fafc74ed6d1f5e672e80c9c"
+    },
+    {
+      "path": "docs/PROTOCOL.md",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "a2e098d42e70bba212447388b070e3bcf6e55736",
+      "size": 4596,
+      "url": "https://api.github.com/repos/reihnxx/lyricbar/git/blobs/a2e098d42e70bba212447388b070e3bcf6e55736"
+    },
+    {
+      "path": "docs/chrome-web-store.md",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "29062020345e23e973b39a5897981ab28313989d",
+      "size": 2471,
+      "url": "https://api.github.com/repos/reihnxx/lyricbar/git/blobs/29062020345e23e973b39a5897981ab28313989d"
+    },
+    {
+      "path": "docs/images",
+      "mode": "040000",
+      "type": "tree",
+      "sha": "840204395410e6407147348d77de28e61affa747",
+      "url": "https://api.github.com/repos/reihnxx/lyricbar/git/trees/840204395410e6407147348d77de28e61affa747"
+    },
+    {
+      "path": "docs/images/extension-popup.png",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "d7fdb267a0969d7e925110e919bb1dda578404a0",
+      "size": 317738,
+      "url": "https://api.github.com/repos/reihnxx/lyricbar/git/blobs/d7fdb267a0969d7e925110e919bb1dda578404a0"
+    },
+    {
+      "path": "docs/images/floating-lyrics-controls.png",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "555770582d48b9f3f06d0ac077d0bc05d74d9acb",
+      "size": 70807,
+      "url": "https://api.github.com/repos/reihnxx/lyricbar/git/blobs/555770582d48b9f3f06d0ac077d0bc05d74d9acb"
+    },
+    {
+      "path": "docs/images/floating-lyrics.png",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "4f831dabfb5295c826759e464d37694aba98ab79",
+      "size": 53803,
+      "url": "https://api.github.com/repos/reihnxx/lyricbar/git/blobs/4f831dabfb5295c826759e464d37694aba98ab79"
+    },
+    {
+      "path": "docs/images/install-extension-en.png",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "abbb450e254224d4afe6ff59135d06ee00505108",
+      "size": 248594,
+      "url": "https://api.github.com/repos/reihnxx/lyricbar/git/blobs/abbb450e254224d4afe6ff59135d06ee00505108"
+    },
+    {
+      "path": "docs/images/install-extension-id.png",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "9fc6fb2b5fb41318ae7f5c6e7db234f17bf285d0",
+      "size": 240926,
+      "url": "https://api.github.com/repos/reihnxx/lyricbar/git/blobs/9fc6fb2b5fb41318ae7f5c6e7db234f17bf285d0"
+    },
+    {
+      "path": "docs/images/install-macos-en.png",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "a1b2ddb358449c94f53428e976320460563e25f3",
+      "size": 182523,
+      "url": "https://api.github.com/repos/reihnxx/lyricbar/git/blobs/a1b2ddb358449c94f53428e976320460563e25f3"
+    },
+    {
+      "path": "docs/images/install-macos-id.png",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "565475b1b6902f15caf7a94e5d7527f4efb0627e",
+      "size": 189679,
+      "url": "https://api.github.com/repos/reihnxx/lyricbar/git/blobs/565475b1b6902f15caf7a94e5d7527f4efb0627e"
+    },
+    {
+      "path": "docs/images/social-preview.png",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "1840b9ac0dec2324727ef6da7bd1082ddf15888b",
+      "size": 207517,
+      "url": "https://api.github.com/repos/reihnxx/lyricbar/git/blobs/1840b9ac0dec2324727ef6da7bd1082ddf15888b"
+    },
+    {
+      "path": "docs/images/spotify-button-en.png",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "e66a0f2647d58f37b6f78b16e2362bc1d5026761",
+      "size": 52778,
+      "url": "https://api.github.com/repos/reihnxx/lyricbar/git/blobs/e66a0f2647d58f37b6f78b16e2362bc1d5026761"
+    },
+    {
+      "path": "docs/images/spotify-button-id.png",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "1093b085629e8b3fd8b974776a663075edbe01f6",
+      "size": 52579,
+      "url": "https://api.github.com/repos/reihnxx/lyricbar/git/blobs/1093b085629e8b3fd8b974776a663075edbe01f6"
+    },
+    {
+      "path": "docs/images/touchbar-button.png",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "79a7778db46a5558fbc189406795ce8f6a48e26e",
+      "size": 24854,
+      "url": "https://api.github.com/repos/reihnxx/lyricbar/git/blobs/79a7778db46a5558fbc189406795ce8f6a48e26e"
+    },
+    {
+      "path": "docs/images/touchbar-long-line.png",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "acb6a9f15821e2e9164c9d2b99c4a757c59ce828",
+      "size": 35219,
+      "url": "https://api.github.com/repos/reihnxx/lyricbar/git/blobs/acb6a9f15821e2e9164c9d2b99c4a757c59ce828"
+    },
+    {
+      "path": "docs/images/touchbar-lyrics.png",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "0ea81bc06647ce4ca774e5189c40923ce717fd92",
+      "size": 32533,
+      "url": "https://api.github.com/repos/reihnxx/lyricbar/git/blobs/0ea81bc06647ce4ca774e5189c40923ce717fd92"
+    },
+    {
+      "path": "docs/images/touchbar-no-lyrics.png",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "dff6bf9e120af805fc0bb422bfed65777e831987",
+      "size": 34790,
+      "url": "https://api.github.com/repos/reihnxx/lyricbar/git/blobs/dff6bf9e120af805fc0bb422bfed65777e831987"
+    },
+    {
+      "path": "docs/images/touchbar-unsynced.png",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "40e7621dab3c5fec957c5e6ebf7117fa0563ec7f",
+      "size": 34479,
+      "url": "https://api.github.com/repos/reihnxx/lyricbar/git/blobs/40e7621dab3c5fec957c5e6ebf7117fa0563ec7f"
+    },
+    {
+      "path": "extension",
+      "mode": "040000",
+      "type": "tree",
+      "sha": "bafbb9ad076d135cb3df24be073c0c2f905b0b91",
+      "url": "https://api.github.com/repos/reihnxx/lyricbar/git/trees/bafbb9ad076d135cb3df24be073c0c2f905b0b91"
+    },
+    {
+      "path": "extension/background",
+      "mode": "040000",
+      "type": "tree",
+      "sha": "caca8b1ac20f703049b6bd783e0ada0ab2aa07db",
+      "url": "https://api.github.com/repos/reihnxx/lyricbar/git/trees/caca8b1ac20f703049b6bd783e0ada0ab2aa07db"
+    },
+    {
+      "path": "extension/background/service-worker.js",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "53d28a6fc848f93372eb0ba1b49fd11210fb8dba",
+      "size": 10510,
+      "url": "https://api.github.com/repos/reihnxx/lyricbar/git/blobs/53d28a6fc848f93372eb0ba1b49fd11210fb8dba"
+    },
+    {
+      "path": "extension/content",
+      "mode": "040000",
+      "type": "tree",
+      "sha": "cf0ae7d824d19397bd875c7c22f7fdd687ee4ae2",
+      "url": "https://api.github.com/repos/reihnxx/lyricbar/git/trees/cf0ae7d824d19397bd875c7c22f7fdd687ee4ae2"
+    },
+    {
+      "path": "extension/content/mini-render.js",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "9a59f670ec78829c259baa1f995cb1d7516da427",
+      "size": 7834,
+      "url": "https://api.github.com/repos/reihnxx/lyricbar/git/blobs/9a59f670ec78829c259baa1f995cb1d7516da427"
+    },
+    {
+      "path": "extension/content/selectors.js",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "7d80655bc3ed0b02cc09de382e4d140b15a53a35",
+      "size": 1678,
+      "url": "https://api.github.com/repos/reihnxx/lyricbar/git/blobs/7d80655bc3ed0b02cc09de382e4d140b15a53a35"
+    },
+    {
+      "path": "extension/content/spotify-main.js",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "3d695f20b6631765e9ef66d2f6b5f8cd362e2fff",
+      "size": 1607,
+      "url": "https://api.github.com/repos/reihnxx/lyricbar/git/blobs/3d695f20b6631765e9ef66d2f6b5f8cd362e2fff"
+    },
+    {
+      "path": "extension/content/spotify.js",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "4db35809541b8834ade778ff5098a013fdbaafa9",
+      "size": 11897,
+      "url": "https://api.github.com/repos/reihnxx/lyricbar/git/blobs/4db35809541b8834ade778ff5098a013fdbaafa9"
+    },
+    {
+      "path": "extension/icons",
+      "mode": "040000",
+      "type": "tree",
+      "sha": "43f4854846f42e4f98e1d7d939e8710b67641a36",
+      "url": "https://api.github.com/repos/reihnxx/lyricbar/git/trees/43f4854846f42e4f98e1d7d939e8710b67641a36"
+    },
+    {
+      "path": "extension/icons/icon128.png",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "0053b8c675f907e430ec3199eaa7d126d7726e9e",
+      "size": 7276,
+      "url": "https://api.github.com/repos/reihnxx/lyricbar/git/blobs/0053b8c675f907e430ec3199eaa7d126d7726e9e"
+    },
+    {
+      "path": "extension/icons/icon16.png",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "aee82150359dc8b01ce064328acf82904adb89e8",
+      "size": 712,
+      "url": "https://api.github.com/repos/reihnxx/lyricbar/git/blobs/aee82150359dc8b01ce064328acf82904adb89e8"
+    },
+    {
+      "path": "extension/icons/icon32.png",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "f854475eeea46a139916e2e204babbb8daa7fee6",
+      "size": 1559,
+      "url": "https://api.github.com/repos/reihnxx/lyricbar/git/blobs/f854475eeea46a139916e2e204babbb8daa7fee6"
+    },
+    {
+      "path": "extension/icons/icon48.png",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "cbe04f595cc3ab335dbdf53b759db98b10636134",
+      "size": 2476,
+      "url": "https://api.github.com/repos/reihnxx/lyricbar/git/blobs/cbe04f595cc3ab335dbdf53b759db98b10636134"
+    },
+    {
+      "path": "extension/lib",
+      "mode": "040000",
+      "type": "tree",
+      "sha": "157e709c6d0ae341741f43a9606bffb8456325f9",
+      "url": "https://api.github.com/repos/reihnxx/lyricbar/git/trees/157e709c6d0ae341741f43a9606bffb8456325f9"
+    },
+    {
+      "path": "extension/lib/cache.js",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "c7d171b40e9b0cf47ed9dd705c20650602f10c2a",
+      "size": 1387,
+      "url": "https://api.github.com/repos/reihnxx/lyricbar/git/blobs/c7d171b40e9b0cf47ed9dd705c20650602f10c2a"
+    },
+    {
+      "path": "extension/lib/lrc.js",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "16e50682814cb93a79018d23379f02d777f6bb19",
+      "size": 2418,
+      "url": "https://api.github.com/repos/reihnxx/lyricbar/git/blobs/16e50682814cb93a79018d23379f02d777f6bb19"
+    },
+    {
+      "path": "extension/lib/match.js",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "47218c0bae1d69f619f5e3b3ed5589a41b36c4a6",
+      "size": 3282,
+      "url": "https://api.github.com/repos/reihnxx/lyricbar/git/blobs/47218c0bae1d69f619f5e3b3ed5589a41b36c4a6"
+    },
+    {
+      "path": "extension/lib/overrides.js",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "21e8c6f7f8b2c8bbaeb904fd5158241018d24057",
+      "size": 1373,
+      "url": "https://api.github.com/repos/reihnxx/lyricbar/git/blobs/21e8c6f7f8b2c8bbaeb904fd5158241018d24057"
+    },
+    {
+      "path": "extension/lib/providers",
+      "mode": "040000",
+      "type": "tree",
+      "sha": "6046d6c1bbd3820629f67fe6f96a0d99534195b0",
+      "url": "https://api.github.com/repos/reihnxx/lyricbar/git/trees/6046d6c1bbd3820629f67fe6f96a0d99534195b0"
+    },
+    {
+      "path": "extension/lib/providers/lrclib.js",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "9f75ad61eb956c35da73a85b6206f37fe86007e6",
+      "size": 4643,
+      "url": "https://api.github.com/repos/reihnxx/lyricbar/git/blobs/9f75ad61eb956c35da73a85b6206f37fe86007e6"
+    },
+    {
+      "path": "extension/lib/providers/spotify.js",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "24d38493f33bcd48316618c25cf4daf8b6334bd0",
+      "size": 1535,
+      "url": "https://api.github.com/repos/reihnxx/lyricbar/git/blobs/24d38493f33bcd48316618c25cf4daf8b6334bd0"
+    },
+    {
+      "path": "extension/lib/settings.js",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "fb4fa92024cd5283d56890c24bb5daf72d0e4a31",
+      "size": 631,
+      "url": "https://api.github.com/repos/reihnxx/lyricbar/git/blobs/fb4fa92024cd5283d56890c24bb5daf72d0e4a31"
+    },
+    {
+      "path": "extension/lib/sync.js",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "f934f753ec95a6f09efd8a7c31d7455c3b383f8a",
+      "size": 3278,
+      "url": "https://api.github.com/repos/reihnxx/lyricbar/git/blobs/f934f753ec95a6f09efd8a7c31d7455c3b383f8a"
+    },
+    {
+      "path": "extension/lib/transport.js",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "bdd65722b3728c31c64a462b31f7a6329cf7c722",
+      "size": 3227,
+      "url": "https://api.github.com/repos/reihnxx/lyricbar/git/blobs/bdd65722b3728c31c64a462b31f7a6329cf7c722"
+    },
+    {
+      "path": "extension/manifest.json",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "6e4586e82e451f9162d15c7e5ff57a44cf312252",
+      "size": 1330,
+      "url": "https://api.github.com/repos/reihnxx/lyricbar/git/blobs/6e4586e82e451f9162d15c7e5ff57a44cf312252"
+    },
+    {
+      "path": "extension/test",
+      "mode": "040000",
+      "type": "tree",
+      "sha": "d4008d74021c719479a4cad93b88bc81d04e16f6",
+      "url": "https://api.github.com/repos/reihnxx/lyricbar/git/trees/d4008d74021c719479a4cad93b88bc81d04e16f6"
+    },
+    {
+      "path": "extension/test/lrc.test.js",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "fb3b906b026806c7b0f0e1453168cee0bce40fc9",
+      "size": 1676,
+      "url": "https://api.github.com/repos/reihnxx/lyricbar/git/blobs/fb3b906b026806c7b0f0e1453168cee0bce40fc9"
+    },
+    {
+      "path": "extension/test/match.test.js",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "4235e5e45c3223f5b5626f1172357d0006cbe972",
+      "size": 3183,
+      "url": "https://api.github.com/repos/reihnxx/lyricbar/git/blobs/4235e5e45c3223f5b5626f1172357d0006cbe972"
+    },
+    {
+      "path": "extension/test/mini-render.test.js",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "61b5adffc87f2f69aa776bce72adc0c9a60b3661",
+      "size": 1947,
+      "url": "https://api.github.com/repos/reihnxx/lyricbar/git/blobs/61b5adffc87f2f69aa776bce72adc0c9a60b3661"
+    },
+    {
+      "path": "extension/test/providers.test.js",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "67e10c403f5d78906e77b9beae5ef8ede2c9ed00",
+      "size": 5828,
+      "url": "https://api.github.com/repos/reihnxx/lyricbar/git/blobs/67e10c403f5d78906e77b9beae5ef8ede2c9ed00"
+    },
+    {
+      "path": "extension/test/service-worker.test.js",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "8f613f5aa0cf454a8037424f570c65e1b62ec7d6",
+      "size": 5931,
+      "url": "https://api.github.com/repos/reihnxx/lyricbar/git/blobs/8f613f5aa0cf454a8037424f570c65e1b62ec7d6"
+    },
+    {
+      "path": "extension/test/sync.test.js",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "e64352bf0ff463b9f8f65f91e5dc662bbad2bcaa",
+      "size": 3031,
+      "url": "https://api.github.com/repos/reihnxx/lyricbar/git/blobs/e64352bf0ff463b9f8f65f91e5dc662bbad2bcaa"
+    },
+    {
+      "path": "extension/ui",
+      "mode": "040000",
+      "type": "tree",
+      "sha": "4bb9696ad9447fdae731fb490953ecf8630397a8",
+      "url": "https://api.github.com/repos/reihnxx/lyricbar/git/trees/4bb9696ad9447fdae731fb490953ecf8630397a8"
+    },
+    {
+      "path": "extension/ui/mini.html",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "88e769b0ff719fd5c3cdfc843cee949ff7c42ee9",
+      "size": 378,
+      "url": "https://api.github.com/repos/reihnxx/lyricbar/git/blobs/88e769b0ff719fd5c3cdfc843cee949ff7c42ee9"
+    },
+    {
+      "path": "extension/ui/mini.js",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "82d577c74a685139ecf083e58db3864416f14c5c",
+      "size": 1489,
+      "url": "https://api.github.com/repos/reihnxx/lyricbar/git/blobs/82d577c74a685139ecf083e58db3864416f14c5c"
+    },
+    {
+      "path": "extension/ui/popup.html",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "941638329bf29c9b152417f6d762e7028f48afa1",
+      "size": 5775,
+      "url": "https://api.github.com/repos/reihnxx/lyricbar/git/blobs/941638329bf29c9b152417f6d762e7028f48afa1"
+    },
+    {
+      "path": "extension/ui/popup.js",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "8f2d0b0ccf3984f903077f24adc1b3e90f77cb96",
+      "size": 4685,
+      "url": "https://api.github.com/repos/reihnxx/lyricbar/git/blobs/8f2d0b0ccf3984f903077f24adc1b3e90f77cb96"
+    },
+    {
+      "path": "package.json",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "502672ee6c9512d00254f6f879fa060367fb6cdb",
+      "size": 1052,
+      "url": "https://api.github.com/repos/reihnxx/lyricbar/git/blobs/502672ee6c9512d00254f6f879fa060367fb6cdb"
+    },
+    {
+      "path": "scripts",
+      "mode": "040000",
+      "type": "tree",
+      "sha": "4b140931476f6266e78319224047a5fb457e7cd2",
+      "url": "https://api.github.com/repos/reihnxx/lyricbar/git/trees/4b140931476f6266e78319224047a5fb457e7cd2"
+    },
+    {
+      "path": "scripts/build-macos.sh",
+      "mode": "100755",
+      "type": "blob",
+      "sha": "5b58d979aba4ddbb71c96b0be3c9310e5226e8ab",
+      "size": 1950,
+      "url": "https://api.github.com/repos/reihnxx/lyricbar/git/blobs/5b58d979aba4ddbb71c96b0be3c9310e5226e8ab"
+    },
+    {
+      "path": "scripts/install-macos.sh",
+      "mode": "100755",
+      "type": "blob",
+      "sha": "d78c0a81b01db0e96ad2ce2636f864e614abe951",
+      "size": 1120,
+      "url": "https://api.github.com/repos/reihnxx/lyricbar/git/blobs/d78c0a81b01db0e96ad2ce2636f864e614abe951"
+    },
+    {
+      "path": "scripts/make-icons.swift",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "8e299f38d75bfa6bd79725d320e68bad663e3a8b",
+      "size": 2792,
+      "url": "https://api.github.com/repos/reihnxx/lyricbar/git/blobs/8e299f38d75bfa6bd79725d320e68bad663e3a8b"
+    },
+    {
+      "path": "scripts/mock-sender.mjs",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "a36f92c39a100115b725535fedea7ee6c7829e65",
+      "size": 4424,
+      "url": "https://api.github.com/repos/reihnxx/lyricbar/git/blobs/a36f92c39a100115b725535fedea7ee6c7829e65"
+    },
+    {
+      "path": "scripts/package-extension.sh",
+      "mode": "100755",
+      "type": "blob",
+      "sha": "d9412cccb5fac262f8bfb1337c7da2361c577781",
+      "size": 652,
+      "url": "https://api.github.com/repos/reihnxx/lyricbar/git/blobs/d9412cccb5fac262f8bfb1337c7da2361c577781"
+    },
+    {
+      "path": "site",
+      "mode": "040000",
+      "type": "tree",
+      "sha": "5848f9d2127fc7ec96639a8f8c6ad0859ec71a3c",
+      "url": "https://api.github.com/repos/reihnxx/lyricbar/git/trees/5848f9d2127fc7ec96639a8f8c6ad0859ec71a3c"
+    },
+    {
+      "path": "site/build.mjs",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "e49d375ba99fe3ce9c64d22519eb7210f1e6db55",
+      "size": 22386,
+      "url": "https://api.github.com/repos/reihnxx/lyricbar/git/blobs/e49d375ba99fe3ce9c64d22519eb7210f1e6db55"
+    }
+  ],
+  "truncated": false
+}
