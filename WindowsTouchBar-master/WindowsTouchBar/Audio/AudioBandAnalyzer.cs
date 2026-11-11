@@ -39,8 +39,8 @@ internal sealed class AudioBandAnalyzer
         {
             double rms = Math.Sqrt(energy[i] / divisor);
             double gain = i == 2 ? 8 : i == 0 ? 5 : 4;
-            float target = rms < .00008 ? 0 : (float)Math.Clamp(Math.Pow(rms * gain, .7), 0, 1);
-            double tau = target > smooth[i] ? .025 : .18;
+            float target = rms < .00005 ? 0 : (float)Math.Clamp(Math.Sqrt(rms * gain), 0, 1);
+            double tau = target > smooth[i] ? .015 : .06;
             smooth[i] += (target - smooth[i]) * (float)(1 - Math.Exp(-elapsed / tau));
             energy[i] = 0;
         }

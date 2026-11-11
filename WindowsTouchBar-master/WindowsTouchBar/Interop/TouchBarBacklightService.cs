@@ -68,19 +68,37 @@ internal sealed class TouchBarBacklightService : IDisposable
             stream = device.Open();
             stream.ReadTimeout = 1000;
             stream.WriteTimeout = 1000;
-            try { originalMode = ReadReport(stream)[2]; }
+            try { originalMode = ReadStableReport(stream)[2]; }
             catch { stream.Dispose(); stream = null; throw; }
         }
 
         var current = ReadReport(stream);
-        // Preserve every unestablished field, including transition values.
-        var request = (byte[])current.Clone();
-        request[0] = 1;
-        request[1] = 1;
-        request[2] = 1;
-        stream.SetFeature(request);
-        byte actual = ReadReport(stream)[2];
-        if (actual != 1) throw new IOException($"Touch Bar backlight did not confirm full/on (mode={actual}).");
+        if (RequiresFullOn(current[2]))
+        {
+            bool confirmed = false;
+            for (int writeAttempt = 0; writeAttempt < 3 && !confirmed; writeAttempt++)
+            {
+                var request = (byte[])current.Clone();
+                request[0] = 1;
+                request[1] = 1;
+                request[2] = 1;
+                stream.SetFeature(request);
+
+                for (int readAttempt = 0; readAttempt < 8; readAttempt++)
+                {
+                    current = ReadReport(stream);
+                    if (current[2] == 1)
+                    {
+                        confirmed = true;
+                        break;
+                    }
+                    if (!IsTransitionMode(current[2])) break;
+                    Thread.Sleep(35);
+                }
+            }
+            if (!confirmed)
+                throw new IOException($"Touch Bar backlight did not confirm full/on after transition retries (mode={current[2]}).");
+        }
         if (!reportedOn)
         {
             log($"Touch Bar backlight: full/on confirmed; original mode={originalMode}; keep-awake active while lyrics are visible.");
@@ -96,12 +114,12 @@ internal sealed class TouchBarBacklightService : IDisposable
         {
             if (originalMode is 3 or 4)
             {
-                var report = ReadReport(stream);
+                var report = ReadStableReport(stream);
                 report[0] = 1;
                 report[1] = 1;
                 report[2] = originalMode.Value;
                 stream.SetFeature(report);
-                byte actual = ReadReport(stream)[2];
+                byte actual = ReadStableReport(stream)[2];
                 if (actual != originalMode) throw new IOException($"Touch Bar backlight restore was not confirmed (expected={originalMode}, actual={actual}).");
                 log($"Touch Bar backlight: restored original mode={originalMode}; keep-awake released.");
             }
@@ -151,7 +169,7 @@ internal sealed class TouchBarBacklightService : IDisposable
         var report = new byte[ReportLength];
         report[0] = 1;
         opened.GetFeature(report);
-        if (report[0] != 1 || report[2] is not (1 or 3 or 4))
+        if (report[0] != 1 || !IsSupportedMode(report[2]))
             throw new IOException($"Unexpected Touch Bar backlight response (report={report[0]}, mode={report[2]}).");
         return report;
     }
@@ -161,7 +179,24 @@ internal sealed class TouchBarBacklightService : IDisposable
     internal static int ReadCurrentMode()
     {
         using var opened = FindDevice().Open();
-        return ReadReport(opened)[2];
+        return ReadStableReport(opened)[2];
+    }
+
+    internal static bool IsSupportedMode(byte mode) => mode is 1 or 2 or 3 or 4;
+    internal static bool IsTransitionMode(byte mode) => mode == 2;
+    internal static bool RequiresFullOn(byte mode) => mode != 1;
+
+    private static byte[] ReadStableReport(HidStream opened)
+    {
+        byte[] report = ReadReport(opened);
+        for (int attempt = 0; IsTransitionMode(report[2]) && attempt < 8; attempt++)
+        {
+            Thread.Sleep(35);
+            report = ReadReport(opened);
+        }
+        if (IsTransitionMode(report[2]))
+            throw new IOException("Touch Bar backlight remained in transition after bounded retries.");
+        return report;
     }
 
     public void Dispose()

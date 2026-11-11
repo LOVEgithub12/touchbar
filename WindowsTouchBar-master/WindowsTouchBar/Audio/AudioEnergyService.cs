@@ -15,8 +15,9 @@ internal sealed class AudioEnergyService : IDisposable
     private AudioEnergyFrame frame = AudioEnergyFrame.Empty;
     private Thread? worker;
     private volatile bool active, disposed;
+    private volatile bool spectrumRequested;
     private int generation, recordingFailed;
-    private WasapiLoopbackCapture? capture;
+    private WasapiCapture? capture;
     private MMDevice? device;
     private string deviceId = "", selectionMode = "";
 
@@ -29,10 +30,7 @@ internal sealed class AudioEnergyService : IDisposable
             if (!active) return AudioEnergyFrame.Empty;
             AudioEnergyFrame current = Volatile.Read(ref frame);
             double age = Now - current.CapturedAtSeconds;
-            if (age <= .12 || current.Level == 0) return current;
-            float decay = age >= 1.2 ? 0 : (float)Math.Exp(-(age - .12) / .18);
-            return current with { Bass = current.Bass * decay, Mid = current.Mid * decay,
-                Treble = current.Treble * decay, Level = current.Level * decay };
+            return current.FadeForAge(age);
         }
     }
 
@@ -47,13 +45,14 @@ internal sealed class AudioEnergyService : IDisposable
     }
 
     // Device enumeration and WASAPI StopRecording never run on the render/input thread.
-    public void SetActive(bool value)
+    public void SetActive(bool value, bool includeSpectrum = false)
     {
         lock (lifecycle)
         {
-            if (disposed || active == value) return;
+            if (disposed) return;
+            spectrumRequested = value && includeSpectrum;
+            if (active == value) return;
             active = value;
-            if (!value) Volatile.Write(ref frame, AudioEnergyFrame.Empty);
             wake.Set();
         }
     }
@@ -162,7 +161,7 @@ internal sealed class AudioEnergyService : IDisposable
         device = selected;
         deviceId = selected.ID;
         selectionMode = mode;
-        var source = new WasapiLoopbackCapture(selected);
+        var source = new ShortBufferLoopback(selected);
         capture = source;
         WaveFormat format = source.WaveFormat.AsStandardWaveFormat();
         bool floating = format.Encoding == WaveFormatEncoding.IeeeFloat;
@@ -171,10 +170,12 @@ internal sealed class AudioEnergyService : IDisposable
             (floating && bytes != 4) || (!floating && bytes is not (2 or 3 or 4)))
             throw new NotSupportedException("Unsupported loopback format " + format);
         var analyzer = new AudioBandAnalyzer(format.SampleRate, format.Channels);
+        AudioSpectrumAnalyzer? spectrum = null;
         string name = selected.FriendlyName;
         long samples = 0;
         int token = Interlocked.Increment(ref generation);
-        Volatile.Write(ref frame, new(0, 0, 0, 0, true, name, 0, Now));
+        var previousFrame = Volatile.Read(ref frame);
+        Volatile.Write(ref frame, previousFrame with { IsCapturing = true, DeviceName = name, Spectrum = default });
         source.DataAvailable += (_, e) =>
         {
             if (!active || token != Volatile.Read(ref generation)) return;
@@ -182,6 +183,8 @@ internal sealed class AudioEnergyService : IDisposable
             {
                 int block = format.BlockAlign;
                 int count = e.BytesRecorded - e.BytesRecorded % block;
+                if (count == 0) return;
+                spectrum = spectrumRequested ? spectrum ?? new AudioSpectrumAnalyzer(format.SampleRate, format.Channels) : null;
                 for (int offset = 0; offset < count; offset += block)
                 {
                     for (int channel = 0; channel < format.Channels; channel++)
@@ -197,13 +200,14 @@ internal sealed class AudioEnergyService : IDisposable
                         }
                         else sample = BinaryPrimitives.ReadInt32LittleEndian(e.Buffer.AsSpan(at, 4)) / 2147483648f;
                         analyzer.Add(sample, channel);
+                        spectrum?.Add(sample, channel);
                     }
                 }
                 samples += count / block;
                 var energy = analyzer.ReadAndReset();
                 if (active && token == Volatile.Read(ref generation))
-                    Volatile.Write(ref frame, new(energy.Bass, energy.Mid, energy.Treble,
-                        energy.Level, true, name, samples, Now));
+                    Volatile.Write(ref frame, new AudioEnergyFrame(energy.Bass, energy.Mid, energy.Treble,
+                        energy.Level, true, name, samples, Now) { Spectrum = spectrum?.Latest ?? default });
             }
             catch (Exception ex)
             {
@@ -235,7 +239,8 @@ internal sealed class AudioEnergyService : IDisposable
         device?.Dispose();
         device = null;
         deviceId = "";
-        Volatile.Write(ref frame, AudioEnergyFrame.Empty);
+        var previousFrame = Volatile.Read(ref frame);
+        Volatile.Write(ref frame, previousFrame with { IsCapturing = false, Spectrum = default });
         if (previous != null) Log("audio loopback suspended");
     }
 
@@ -243,6 +248,16 @@ internal sealed class AudioEnergyService : IDisposable
     {
         try { log?.Invoke(value); }
         catch { /* Diagnostics must not terminate the audio worker. */ }
+    }
+
+    // The default NAudio loopback buffer is 100 ms. A shorter shared-mode
+    // buffer gives the spectrum frequent fresh data without changing output.
+    private sealed class ShortBufferLoopback : WasapiCapture
+    {
+        public ShortBufferLoopback(MMDevice endpoint) : base(endpoint, false, 28) { }
+
+        protected override AudioClientStreamFlags GetAudioClientStreamFlags() =>
+            base.GetAudioClientStreamFlags() | AudioClientStreamFlags.Loopback;
     }
 
     public void Dispose()

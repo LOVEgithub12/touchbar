@@ -31,6 +31,7 @@ tools/downloads/
 *.jpeg
 *.gif
 *.bmp
+!WindowsTouchBar-master/WindowsTouchBar/Resources/aurora-ribbon-frames.png
 *.htm
 *.html
 tools/**/[Bb]acklightResearch/*.txt
@@ -64,3 +65,22 @@ DFRDisplayKm-driver/*.cer
 *.userosscache
 Thumbs.db
 Desktop.ini
+
+# Local migration evidence and preview copies
+verification-20261111-startup/
+previews/
+
+# Intentional public documentation assets
+!docs/images/*.png
+!docs/images/*.gif
+
+# Private media, machine state and experiments
+*.mp4
+*.mov
+*.wav
+*.mp3
+/verification-*/
+/backup-*/
+/TouchBar-Custom/
+/迁移与使用说明.md
+/tools/MoveTouchBarWorkspace.ps1

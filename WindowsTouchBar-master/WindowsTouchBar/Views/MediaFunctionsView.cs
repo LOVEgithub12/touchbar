@@ -15,11 +15,14 @@ internal class MediaFunctionsView : TouchBarView
     private readonly Button playButton;
     private readonly Button nextButton;
     private bool? controlsFoobar;
+    public event Action? FunctionsPageRequested;
 
     public MediaFunctionsView(int width, int height) : base(width, height)
     {
         ComponentsGap = 20;
-        Components.Add(new Spacer(true));
+        var functionsPageButton = new PageToggleButton(SKRect.Create(100, Height - 4), "F", "1-12");
+        functionsPageButton.OnTouchUp += (_, _) => FunctionsPageRequested?.Invoke();
+        Components.Add(functionsPageButton);
         var button = CreateButton(null, "\uE706", true);
         button.IconSize = 36;
         button.OnTouchDown += BrightlessDown;
@@ -40,6 +43,7 @@ internal class MediaFunctionsView : TouchBarView
         CreateButton(VirtualKeyCode.VOLUME_UP, "\uE995", true);
         Components.Add(new Spacer(true));
         Update();
+        foreach (var component in Components.OfType<Button>()) component.X += 20;
     }
 
     private MediaIconButton CreateButton(VirtualKeyCode? keyCode, string text, bool touchDownInterval = false, int width = 150)

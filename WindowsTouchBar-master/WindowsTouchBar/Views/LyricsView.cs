@@ -2,6 +2,7 @@ using System.Globalization;
 using System.Diagnostics;
 using SkiaSharp;
 using WindowsInput.Native;
+using WindowsTouchBar.Audio;
 using WindowsTouchBar.Commands;
 using WindowsTouchBar.Components;
 using WindowsTouchBar.Lyrics;
@@ -16,23 +17,60 @@ internal sealed class LyricsView : TouchBarView
     private readonly LyricsLabel label;
     private readonly Button playButton;
     private readonly AuroraRibbonRenderer aurora = new();
+    private readonly SpectrumBackgroundRenderer spectrum = new();
+    private LyricsBackground background = LyricsBackground.Aurora;
+    private AudioEnergyFrame audio = AudioEnergyFrame.Empty;
     private long backgroundFrame;
     public event Action? MainRequested;
-    public event Action? VisualizerToggleRequested;
-    public bool VisualizerEnabled
+    public event Action? BackgroundChangeRequested;
+    public LyricsBackground Background
     {
-        get => label.VisualizerEnabled;
+        get => background;
         set
         {
-            label.VisualizerEnabled = value;
-            if (!value) aurora.Reset();
-            foreach (var button in Components.OfType<Button>().Where(button => !ReferenceEquals(button, label)))
-                button.FillColor = value ? new SKColor(28, 28, 33, 135) : new SKColor(38, 38, 40);
+            if (background == value) return;
+            background = value;
+            spectrum.Reset();
+            if (value == LyricsBackground.Off) aurora.Reset();
+            UpdateBackgroundStyle();
         }
     }
+    public bool VisualizerEnabled
+    {
+        get => background != LyricsBackground.Off;
+        set => Background = value ? VisualizerEnabled ? Background : LyricsBackground.Aurora : LyricsBackground.Off;
+    }
+    private void UpdateBackgroundStyle()
+    {
+        label.VisualizerEnabled = VisualizerEnabled;
+        label.OutlineWidth = background == LyricsBackground.Spectrum ? 3.6f : 2.2f;
+        foreach (var button in Components.OfType<Button>().Where(button => !ReferenceEquals(button, label)))
+        {
+            button.FillColor = VisualizerEnabled ? new SKColor(28, 28, 33, 135) : new SKColor(38, 38, 40);
+            button.BackgroundBottomInset = VisualizerEnabled ? 6 : 0;
+        }
+    }
+    public void CycleBackground() => Background = background switch
+    {
+        LyricsBackground.Aurora => LyricsBackground.Spectrum,
+        LyricsBackground.Spectrum => LyricsBackground.Off,
+        _ => LyricsBackground.Aurora
+    };
     public bool NeedsAnimation => label.NeedsAnimation;
     public void SetAudioEnergy(float bass, float mid, float treble, float level) => aurora.SetEnergy(bass, mid, treble, level);
-    public void ResetAnimation() { label.ResetAnimation(); backgroundFrame = 0; aurora.Reset(); }
+    public void SetAudioEnergy(AudioEnergyFrame frame)
+    {
+        audio = frame;
+        SetAudioEnergy(frame.Bass, frame.Mid, frame.Treble, frame.Level);
+    }
+    public void ResetAnimation()
+    {
+        label.ResetAnimation();
+        backgroundFrame = 0;
+        audio = AudioEnergyFrame.Empty;
+        aurora.Reset();
+        spectrum.Reset();
+    }
 
     public override void Draw(SKCanvas canvas)
     {
@@ -41,16 +79,21 @@ internal sealed class LyricsView : TouchBarView
         backgroundFrame = now;
         if (VisualizerEnabled && label.Snapshot.ShowLyrics)
         {
-            // Keep the animated background inside the lyric surface. The side
-            // controls remain stable and readable while the lyric area retains
-            // its own local coordinate system.
+            // Keep the center effects below the lyric text and controls.
             canvas.Save();
             canvas.Translate(label.X, label.Y);
-            aurora.Draw(canvas, label.Width, label.Height, elapsed);
+            if (background == LyricsBackground.Spectrum)
+            {
+                aurora.Advance(elapsed); // Keep the same side dust while the center uses the spectrum.
+                spectrum.Draw(canvas, label.Width, label.Height, audio.Spectrum.Span, audio.SpectrumScale, elapsed);
+            }
+            else aurora.Draw(canvas, label.Width, label.Height, elapsed);
             canvas.Restore();
         }
-        label.HasAudioEnergy = aurora.HasEnergy;
+        label.HasAudioEnergy = background == LyricsBackground.Spectrum ? spectrum.HasEnergy : aurora.HasEnergy;
         base.Draw(canvas);
+        if (VisualizerEnabled && label.Snapshot.ShowLyrics)
+            aurora.DrawSideDust(canvas, Width, Height, label.X, label.X + label.Width);
     }
 
     public LyricsView(int width, int height) : base(width, height)
@@ -64,10 +107,10 @@ internal sealed class LyricsView : TouchBarView
         var player = new PlayerIconButton(SKRect.Create(112, height - 4));
         player.OnTouchUp += (_, _) => MainRequested?.Invoke();
         Components.Add(player);
-        Components.Add(new Spacer(24));
-        // Keep x=640 and extend right to 20px before the existing volume group.
-        label = new LyricsLabel(SKRect.Create(width - 1080, height - 4));
-        label.OnTouchUp += (_, _) => VisualizerToggleRequested?.Invoke();
+        Components.Add(new Spacer(0));
+        // Fill the center gap from x=616 to the mute control's left edge.
+        label = new LyricsLabel(SKRect.Create(width - 1036, height - 4));
+        label.Tapped += () => BackgroundChangeRequested?.Invoke();
         Components.Add(label);
         Components.Add(new Spacer(true));
         AddControl("\uE74F", 112).Command = new KeyPressCommand(VirtualKeyCode.VOLUME_MUTE);
@@ -75,7 +118,7 @@ internal sealed class LyricsView : TouchBarView
         AddControl("\uE995", 128, true).Command = new KeyPressCommand(VirtualKeyCode.VOLUME_UP);
         Components.Add(new Spacer(12));
         Update();
-        VisualizerEnabled = true;
+        UpdateBackgroundStyle();
     }
 
     private Button AddControl(string icon, int width, bool repeat = false)
@@ -131,8 +174,11 @@ internal sealed class LyricsView : TouchBarView
         private bool overflow;
         private long lastFrame;
         private bool resetViewport = true;
+        private SKPoint? tapOrigin;
+        public event Action? Tapped;
         public bool VisualizerEnabled { get; set; } = true;
         public bool HasAudioEnergy { get; set; }
+        public float OutlineWidth { get; set; } = 2.2f;
         public void ResetAnimation() { resetViewport = true; lastFrame = 0; }
         private static double Elapsed(long ticks) => ticks == 0 ? double.MaxValue : (Stopwatch.GetTimestamp() - ticks) / (double)Stopwatch.Frequency;
         public bool NeedsAnimation => Elapsed(changedAt) < 0.12 ||
@@ -149,6 +195,26 @@ internal sealed class LyricsView : TouchBarView
         private static string MainText(LyricsSnapshot value) =>
             (string.IsNullOrWhiteSpace(value.CurrentLine) ? value.Title : value.CurrentLine).Replace('\r', ' ').Replace('\n', ' ');
         public LyricsLabel(SKRect size) : base(size) { FillColor = SKColors.Black; }
+
+        private bool WithinTap(SKPoint point) => tapOrigin is SKPoint start &&
+            point.X >= 0 && point.X < Width && point.Y >= 0 && point.Y < Height &&
+            Math.Abs(point.X - start.X) <= 28 && Math.Abs(point.Y - start.Y) <= 18;
+        public override void TouchDown(SKPoint point)
+        {
+            tapOrigin = point;
+            base.TouchDown(point);
+        }
+        public override void TouchMove(SKPoint point)
+        {
+            if (!WithinTap(point)) tapOrigin = null;
+        }
+        public override void TouchUp(SKPoint point)
+        {
+            bool tapped = WithinTap(point);
+            tapOrigin = null;
+            base.TouchUp(point);
+            if (tapped) Tapped?.Invoke();
+        }
 
         public override void Draw(SKCanvas canvas)
         {
@@ -210,7 +276,7 @@ internal sealed class LyricsView : TouchBarView
             if (VisualizerEnabled && HasAudioEnergy)
             {
                 using var shadow = new SKPaint { IsAntialias = true, Color = new SKColor(0, 0, 0, 210),
-                    Style = SKPaintStyle.Stroke, StrokeWidth = 2.2f, TextSize = paint.TextSize };
+                    Style = SKPaintStyle.Stroke, StrokeWidth = OutlineWidth, TextSize = paint.TextSize };
                 layout.Draw(canvas, x, baseline, shadow);
             }
             paint.Color = SKColors.White.WithAlpha(alpha);

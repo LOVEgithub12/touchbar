@@ -9,9 +9,11 @@ namespace WindowsTouchBar.Views;
 internal class DefaultFunctionsView : TouchBarView
 {
     public override ViewType Type => ViewType.Function;
+    public event Action? MediaPageRequested;
 
     public DefaultFunctionsView(int width, int height) : base(width, height)
     {
+        ComponentsGap = 8;
         CreateButtons();
         Update();
     }
@@ -34,12 +36,16 @@ internal class DefaultFunctionsView : TouchBarView
             VirtualKeyCode.F12
         };
 
-        var btnW = (Width - ComponentsGap * (keyCodes.Length - 1)) / keyCodes.Length;
-        var btnSize = SKRect.Create(btnW, Height - 4);
+        var mediaPageButton = new PageToggleButton(SKRect.Create(100, Height - 4), "\uE72B", "返回", "Segoe MDL2 Assets");
+        mediaPageButton.FillColor = new SKColor(65, 65, 65);
+        mediaPageButton.DownFillColor = new SKColor(40, 40, 40);
+        mediaPageButton.CornerRadius = new SKPoint(15, 15);
+        mediaPageButton.OnTouchUp += (_, _) => MediaPageRequested?.Invoke();
+        Components.Add(mediaPageButton);
 
         Components.AddRange(keyCodes.Select(keyCode =>
         {
-            var btn = new Button(btnSize);
+            var btn = new Button(SKRect.Create(150, Height - 4));
             btn.Text = keyCode.ToString();
             btn.Command = new KeyPressCommand(keyCode);
 

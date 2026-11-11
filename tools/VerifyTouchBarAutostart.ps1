@@ -1,4 +1,8 @@
 $ErrorActionPreference = 'Stop'
+$principal = New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())
+if (-not $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
+    throw 'Administrator access is required to inspect the protected SYSTEM recovery task. Access denied does not mean the task is missing.'
+}
 $workspace = Split-Path -Parent $PSScriptRoot
 $task = Get-ScheduledTask -TaskName 'TouchBar USBIP Boot Recovery'
 $info = $task | Get-ScheduledTaskInfo

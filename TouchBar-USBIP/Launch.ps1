@@ -5,10 +5,11 @@ $root=[IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..'))
 $app=Join-Path $PSScriptRoot 'app/WindowsTouchBar.exe'
 $log=Join-Path $PSScriptRoot 'launcher.log'
 try {
+    . (Join-Path $PSScriptRoot 'Read-UsbIpState.ps1')
     $exe='C:\Program Files\usbipd-win\usbipd.exe'
     if(-not (Test-Path -LiteralPath $exe)){throw 'usbipd is not installed. See the usage guide.'}
     if(-not (Test-Path -LiteralPath $app)){throw 'Touch Bar application is missing.'}
-    $state=(& $exe state | Out-String) | ConvertFrom-Json
+    $state=Read-UsbIpState -Executable $exe
     $devices=@($state.Devices | Where-Object InstanceId -eq 'USB\VID_05AC&PID_8302\0000000000000000')
     if($devices.Count -ne 1){throw 'The expected Touch Bar is not connected.'}
     $device=Get-ItemProperty -LiteralPath 'HKLM:\SYSTEM\CurrentControlSet\Enum\USB\VID_05AC&PID_8302\0000000000000000'
@@ -25,7 +26,8 @@ try {
         $disabled=Join-Path $PSScriptRoot 'autostart.disabled'
         if(Test-Path -LiteralPath $disabled){Remove-Item -LiteralPath $disabled}
     }
-    $process=Start-Process -FilePath $app -ArgumentList @('--usbip',$modeArgument) -WindowStyle Hidden -PassThru
+    $launchTime=Get-Date
+    $process=Start-Process -FilePath $app -ArgumentList @('--usbip',$modeArgument) -WorkingDirectory (Split-Path $app) -WindowStyle Hidden -PassThru
     if($Mode -eq 'Check'){
         if(-not $process.WaitForExit(60000)){throw 'Diagnostic timed out; inspect the application status log.'}
         $result=Get-Content -LiteralPath (Join-Path $PSScriptRoot 'app/WindowsTouchBar.status.log') -Raw
@@ -33,7 +35,29 @@ try {
         $result | Set-Content -LiteralPath $log -Encoding utf8
         if($process.ExitCode -ne 0){throw $result}
     }else{
-        ('Started '+$Mode+' at '+(Get-Date -Format o)) | Set-Content -LiteralPath $log -Encoding utf8
+        $statusPath=Join-Path $PSScriptRoot 'app/WindowsTouchBar.status.log'
+        $deadline=[DateTime]::UtcNow.AddSeconds(25)
+        $ready=$false
+        $result=''
+        while([DateTime]::UtcNow -lt $deadline){
+            $process.Refresh()
+            if((Test-Path -LiteralPath $statusPath) -and (Get-Item -LiteralPath $statusPath).LastWriteTime -ge $launchTime){
+                $result=Get-Content -LiteralPath $statusPath -Raw
+                if(-not $process.HasExited -and $result -match '(?m)^RUNNING:'){$ready=$true;break}
+                if($result -match '(?m)^FAILED:'){throw $result}
+            }
+            if($process.HasExited){
+                # The app deliberately exits 0 when a copy already owns the device.
+                $existing=@(Get-Process -Name WindowsTouchBar -ErrorAction SilentlyContinue | Where-Object {
+                    $_.Id -ne $process.Id -and $_.Path -eq $app -and $_.SessionId -eq (Get-Process -Id $PID).SessionId
+                })
+                if($process.ExitCode -eq 0 -and $existing.Count -gt 0){$ready=$true;break}
+                throw ('Touch Bar initialization exited with code '+$process.ExitCode+'. '+$result)
+            }
+            Start-Sleep -Milliseconds 250
+        }
+        if(-not $ready){throw 'Touch Bar initialization timed out; inspect app/WindowsTouchBar.status.log.'}
+        ('RUNNING '+$Mode+' at '+(Get-Date -Format o)) | Set-Content -LiteralPath $log -Encoding utf8
     }
 }catch{
     $_.Exception.ToString() | Set-Content -LiteralPath $log -Encoding utf8

@@ -3,7 +3,7 @@
     <OutputType>Exe</OutputType><TargetFramework>net6.0-windows</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings><Nullable>enable</Nullable>
   </PropertyGroup>
-  <ItemGroup><Compile Include="../../WindowsTouchBar-master/WindowsTouchBar/Lyrics/*.cs" Link="Lyrics/%(Filename)%(Extension)" /></ItemGroup>
+  <ItemGroup><Compile Include="../../WindowsTouchBar-master/WindowsTouchBar/Lyrics/*.cs" Exclude="../../WindowsTouchBar-master/WindowsTouchBar/Lyrics/AuroraRibbonRenderer.cs;../../WindowsTouchBar-master/WindowsTouchBar/Lyrics/SpectrumBackgroundRenderer.cs" Link="Lyrics/%(Filename)%(Extension)" /></ItemGroup>
   <ItemGroup>
     <Compile Include="../../WindowsTouchBar-master/WindowsTouchBar/Commands/FoobarPlaybackCommand.cs" Link="Commands/FoobarPlaybackCommand.cs" />
     <Compile Include="../../WindowsTouchBar-master/WindowsTouchBar/Commands/ITouchCommand.cs" Link="Commands/ITouchCommand.cs" />

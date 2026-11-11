@@ -5,6 +5,8 @@ $panel = Join-Path $profile 'foobox\script\js_panels\bottombar.js'
 $bridge = Join-Path $profile 'foobox\script\js_common\touchbar_bridge.js'
 $source = Join-Path $PSScriptRoot 'LyricsResearch\FoobarBridge.js'
 $backup = Join-Path $workspace 'backup-20261108\foobar-lyrics'
+$evidence = Join-Path $workspace 'verification-usbip-20261108'
+New-Item -ItemType Directory -Path $evidence -Force | Out-Null
 $marker = '// WindowsTouchBar lyrics bridge integration'
 if (-not (Test-Path -LiteralPath $panel) -or -not (Test-Path -LiteralPath $source)) { throw 'Expected foobox panel or bridge source is missing.' }
 New-Item -ItemType Directory -Path $backup -Force | Out-Null
@@ -15,7 +17,10 @@ if (-not $original.Contains($marker)) {
     Copy-Item -LiteralPath $panel -Destination $backupPanel
     if (Test-Path -LiteralPath $bridge) { Copy-Item -LiteralPath $bridge -Destination (Join-Path $backup 'touchbar_bridge.js.original') }
 }
-Copy-Item -LiteralPath $source -Destination $bridge -Force
+$appDirectory = Join-Path $workspace 'TouchBar-USBIP\app'
+$configuredSource = 'var TouchBarBridgeOutputPath = ' + (ConvertTo-Json -InputObject $appDirectory -Compress) + ';' +
+    [Environment]::NewLine + [IO.File]::ReadAllText($source)
+[IO.File]::WriteAllText($bridge, $configuredSource, (New-Object Text.UTF8Encoding($false)))
 if (-not $original.Contains($marker)) {
     $addition = @'
 

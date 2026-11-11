@@ -6,12 +6,13 @@ $evidence=Join-Path $root 'verification-usbip-20261108'
 New-Item -ItemType Directory -Path $evidence -Force | Out-Null
 Start-Transcript -Path (Join-Path $evidence ('usbip-'+$Mode+'.log')) -Append | Out-Null
 try {
+    . (Join-Path $root 'TouchBar-USBIP\Read-UsbIpState.ps1')
     $principal=[Security.Principal.WindowsPrincipal]::new([Security.Principal.WindowsIdentity]::GetCurrent())
     if(-not $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)){throw 'Administrator required.'}
     $exe='C:\Program Files\usbipd-win\usbipd.exe'
     $id='USB\VID_05AC&PID_8302\0000000000000000'
     $key='HKLM:\SYSTEM\CurrentControlSet\Enum\'+$id
-    $state=(& $exe state | Out-String) | ConvertFrom-Json
+    $state=Read-UsbIpState -Executable $exe
     $devices=@($state.Devices | Where-Object InstanceId -eq $id)
     if($devices.Count -ne 1){throw 'Expected one exact Touch Bar root record.'}
     $bus=$devices[0].BusId
@@ -24,7 +25,7 @@ try {
         else{throw 'Neither persistent identity nor connected bus ID is available.'}
         if($LASTEXITCODE -ne 0){throw 'USBIP unbind failed.'}
         for($attempt=0;$attempt -lt 40;$attempt++){
-            $live=(& $exe state | Out-String)|ConvertFrom-Json
+            $live=Read-UsbIpState -Executable $exe
             $connected=@($live.Devices|Where-Object { $_.InstanceId -eq $id -and $_.BusId })
             if($connected.Count -eq 1){break}
             Start-Sleep -Milliseconds 250

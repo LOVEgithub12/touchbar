@@ -40,7 +40,7 @@ internal class TouchBar : IDisposable
     private readonly LyricsNavigation lyricsNavigation = new();
     private bool lastNavigationLyrics;
     private bool mainRequested;
-    private bool visualizerToggleRequested;
+    private bool backgroundChangeRequested;
     private int animationSampleFrames;
     private long animationSampleStart;
     private long animationSamplePrevious;
@@ -52,8 +52,8 @@ internal class TouchBar : IDisposable
     private FileSystemWatcher? settingsFileListener;
     private Settings.View? currentSettingView;
     private ForegroundProcess? currentProcess;
-    private bool fnPressed;
-    private FnKeyService? fnKeyService;
+    private bool functionPageActive;
+    private bool? functionPageRequested;
     private Events.TouchEventArgs? lastTouchEvent;
 
     // The panel reports its real geometry during the DFR handshake; 2008x60 is only the
@@ -116,17 +116,7 @@ internal class TouchBar : IDisposable
                 lyricsService.Published += LyricsPublished;
                 lyricsService.Start();
                 lyricsAnimation = new System.Threading.Timer(_ => AnimateLyrics(), null, 16, Timeout.Infinite);
-                try
-                {
-                    fnKeyService = new FnKeyService(ControlDiagnostics.Write);
-                    fnKeyService.Changed += FnKeyChanged;
-                    fnPressed = fnKeyService.Pressed;
-                    RefreshView();
-                }
-                catch (Exception error)
-                {
-                    ControlDiagnostics.Write("Fn listener unavailable: " + error.Message);
-                }
+                RefreshView();
             }
         }
         Ready?.Invoke();
@@ -249,10 +239,6 @@ internal class TouchBar : IDisposable
     {
         UpdateSafely(() =>
         {
-            // The launcher can restore the selected default after a missed Fn
-            // transition, without adding nonstandard controls to the panel.
-            fnPressed = false;
-            fnKeyService?.Reset();
             LoadSettings();
         });
     }
@@ -274,7 +260,7 @@ internal class TouchBar : IDisposable
         explorerDialogView = new ExplorerDialogView(Width, Height);
         explorerDialogView.OnInvalidate += CurrentView_OnInvalidate;
         lyricsView = new LyricsView(Width, Height);
-        lyricsView.VisualizerEnabled = VisualizerPreference.Load(ControlDiagnostics.Write);
+        lyricsView.Background = VisualizerPreference.Load(ControlDiagnostics.Write);
         lyricsView.OnInvalidate += CurrentView_OnInvalidate;
         lyricsView.MainRequested += () =>
         {
@@ -282,9 +268,17 @@ internal class TouchBar : IDisposable
             // real release. Synthetic releases/slide-out must not navigate.
             if (lastTouchEvent?.TouchEventType == Events.TouchEventType.TouchUp) mainRequested = true;
         };
-        lyricsView.VisualizerToggleRequested += () =>
+        lyricsView.BackgroundChangeRequested += () =>
         {
-            if (lastTouchEvent?.TouchEventType == Events.TouchEventType.TouchUp) visualizerToggleRequested = true;
+            if (lastTouchEvent?.TouchEventType == Events.TouchEventType.TouchUp) backgroundChangeRequested = true;
+        };
+        mediaFunctionsView.FunctionsPageRequested += () =>
+        {
+            if (lastTouchEvent?.TouchEventType == Events.TouchEventType.TouchUp) functionPageRequested = true;
+        };
+        defaultFunctionsView.MediaPageRequested += () =>
+        {
+            if (lastTouchEvent?.TouchEventType == Events.TouchEventType.TouchUp) functionPageRequested = false;
         };
     }
 
@@ -298,7 +292,6 @@ internal class TouchBar : IDisposable
             visibleChanged |= lyricsNavigation.ShowLyrics != lastNavigationLyrics;
             mediaFunctionsView!.SetSnapshot(snapshot);
             lyricsView!.SetSnapshot(snapshot);
-            if (fnPressed) return;
             if (settings?.LyricsEnabled == false)
             {
                 if (ReferenceEquals(currentView, mediaFunctionsView)) currentView.Invalidate();
@@ -326,7 +319,7 @@ internal class TouchBar : IDisposable
     private void RefreshView()
     {
         lastNavigationLyrics = lyricsNavigation.ShowLyrics;
-        if (fnPressed)
+        if (functionPageActive)
         {
             DisposeViewLastTouch();
             currentSettingView = null;
@@ -350,37 +343,39 @@ internal class TouchBar : IDisposable
             view = settings?.Views?.FirstOrDefault(v => v.Type == ViewType.Custom && string.Equals(v.Application, name, StringComparison.OrdinalIgnoreCase));
         }
 
+        ForegroundButton[] dialogButtons = Array.Empty<ForegroundButton>();
         if (string.Equals("explorer.exe", name, StringComparison.OrdinalIgnoreCase) &&
             currentProcess is not null &&
             currentProcess.Handle != IntPtr.Zero)
         {
-            var buttons = ForegroundTracker.GetWindowButtons(currentProcess.Handle).Where(b => b.Title?.StartsWith('&') is true || b.Title?.Contains('&') is not true).ToArray();
-
-            if (buttons.Any())
-            {
-                explorerDialogView!.CreateDialog(buttons);
-
-                DisposeViewLastTouch();
-                currentSettingView = null;
-                currentView = explorerDialogView;
-
-                currentView?.Invalidate();
-
-                return;
-            }
+            dialogButtons = ForegroundTracker.GetWindowButtons(currentProcess.Handle)
+                .Where(b => b.Title?.StartsWith('&') is true || b.Title?.Contains('&') is not true)
+                .ToArray();
         }
 
-        if (settings?.LyricsEnabled != false && lyricSnapshot.Active)
+        var selection = ForegroundViewPriority.Select(
+            functionPageActive: false,
+            explorerDialogActive: dialogButtons.Length > 0,
+            configuredApplication: view is not null,
+            playerPlaying: settings?.LyricsEnabled != false && lyricSnapshot.ShowLyrics,
+            lyricsActive: settings?.LyricsEnabled != false && lyricSnapshot.Active,
+            defaultMedia: settings?.Views?.Any(v => v.Type == ViewType.Media && v.Default) is true);
+
+        if (selection == ForegroundViewSelection.ExplorerDialog)
         {
-            var playerView = lastNavigationLyrics ? (TouchBarView?)lyricsView : mediaFunctionsView;
-            if (!ReferenceEquals(currentView, playerView)) DisposeViewLastTouch();
+            explorerDialogView!.CreateDialog(dialogButtons);
+
+            DisposeViewLastTouch();
             currentSettingView = null;
-            currentView = playerView;
+            currentView = explorerDialogView;
+
             currentView?.Invalidate();
+            return;
         }
-        else if (view != null)
+
+        if (selection == ForegroundViewSelection.ConfiguredApplication)
         {
-            if (view != currentSettingView)
+            if (view != currentSettingView || !ReferenceEquals(currentView, customFunctionsView))
             {
                 DisposeViewLastTouch();
                 currentSettingView = view;
@@ -389,34 +384,22 @@ internal class TouchBar : IDisposable
                 currentView?.Invalidate();
             }
         }
-        else
+        else if (selection == ForegroundViewSelection.Lyrics)
+        {
+            var playerView = lastNavigationLyrics ? (TouchBarView?)lyricsView : mediaFunctionsView;
+            if (!ReferenceEquals(currentView, playerView)) DisposeViewLastTouch();
+            currentSettingView = null;
+            currentView = playerView;
+            currentView?.Invalidate();
+        }
+        else if (selection == ForegroundViewSelection.DefaultMedia || selection == ForegroundViewSelection.DefaultFunctions)
         {
             currentSettingView = null;
 
             DisposeViewLastTouch();
-            if (settings?.Views?.Any(v => v.Type == ViewType.Media && v.Default) is true)
-            {
-                currentView = mediaFunctionsView;
-            }
-            else
-            {
-                currentView = defaultFunctionsView;
-            }
-
+            currentView = selection == ForegroundViewSelection.DefaultMedia ? mediaFunctionsView : defaultFunctionsView;
             currentView?.Invalidate();
         }
-    }
-
-    private void FnKeyChanged(bool pressed)
-    {
-        UpdateSafely(() =>
-        {
-            // A manual reset can supersede a notification waiting for viewLock.
-            bool latest = fnKeyService?.Pressed ?? pressed;
-            if (fnPressed == latest) return;
-            fnPressed = latest;
-            RefreshView();
-        });
     }
 
     public void CurrentView_OnInvalidate(object? sender, EventArgs e)
@@ -426,7 +409,8 @@ internal class TouchBar : IDisposable
             if (disposedValue || currentView is null) return;
             bool lyricsVisible = ReferenceEquals(currentView, lyricsView) && lyricSnapshot.ShowLyrics;
             touchBarBacklight?.SetLyricsVisible(lyricsVisible);
-            audioEnergy?.SetActive(lyricsVisible && lyricsView!.VisualizerEnabled);
+            audioEnergy?.SetActive(lyricsVisible && lyricsView!.VisualizerEnabled,
+                lyricsVisible && lyricsView!.Background == LyricsBackground.Spectrum);
             string viewName = currentView.GetType().Name;
             if (lastLoggedView != viewName)
             {
@@ -437,7 +421,7 @@ internal class TouchBar : IDisposable
             if (audioEnergy is not null && lyricsVisible)
             {
                 var energy = audioEnergy.Snapshot;
-                lyricsView!.SetAudioEnergy(energy.Bass, energy.Mid, energy.Treble, energy.Level);
+                lyricsView!.SetAudioEnergy(energy);
             }
             currentView.Clear(canvas);
             currentView.Draw(canvas!);
@@ -457,12 +441,24 @@ internal class TouchBar : IDisposable
             }
             lastTouchEvent = evt;
             currentView?.ReceiveTouch(evt);
-            if (visualizerToggleRequested)
+            if (functionPageRequested is bool requestedPage)
             {
-                visualizerToggleRequested = false;
-                lyricsView!.VisualizerEnabled = !lyricsView.VisualizerEnabled;
-                VisualizerPreference.Save(lyricsView.VisualizerEnabled, ControlDiagnostics.Write);
-                ControlDiagnostics.Write("Aurora background: " + (lyricsView.VisualizerEnabled ? "shown" : "hidden"));
+                functionPageRequested = null;
+                if (functionPageActive != requestedPage)
+                {
+                    functionPageActive = requestedPage;
+                    ControlDiagnostics.Write(requestedPage
+                        ? "Navigation: F1-F12 page opened from Touch Bar."
+                        : "Navigation: returned from F1-F12 page.");
+                    RefreshView();
+                }
+            }
+            if (backgroundChangeRequested)
+            {
+                backgroundChangeRequested = false;
+                lyricsView!.CycleBackground();
+                VisualizerPreference.Save(lyricsView.Background, ControlDiagnostics.Write);
+                ControlDiagnostics.Write("Lyrics background: " + lyricsView.Background);
                 currentView?.Invalidate();
             }
             if (mainRequested)
@@ -523,7 +519,6 @@ internal class TouchBar : IDisposable
             disposedValue = true;
 
             ForegroundTracker.OnProcessChanged -= ForegroundTracker_OnProcessChanged;
-            if (fnKeyService is not null) fnKeyService.Changed -= FnKeyChanged;
             if (lyricsService is not null) lyricsService.Published -= LyricsPublished;
             lyricsAnimation?.Dispose();
             TouchReceiver.Event -= TouchReceiver_Event;
@@ -538,7 +533,6 @@ internal class TouchBar : IDisposable
         // Closing HID can wait for a pending callback. Let it finish without
         // holding the view lock that callback needs.
         TouchReceiver.Dispose();
-        fnKeyService?.Dispose();
         lyricsService?.Dispose();
         touchBarBacklight?.Dispose();
         audioEnergy?.Dispose();

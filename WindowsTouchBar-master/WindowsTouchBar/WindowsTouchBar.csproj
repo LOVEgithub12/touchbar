@@ -11,6 +11,7 @@
   <ItemGroup>
     <Content Include="Audio\NAudio-LICENSE.txt" CopyToOutputDirectory="PreserveNewest" />
     <Content Include="Resources\foobar2000.png" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="Resources\aurora-ribbon-frames.png" CopyToOutputDirectory="PreserveNewest" />
     <Content Include="settings.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

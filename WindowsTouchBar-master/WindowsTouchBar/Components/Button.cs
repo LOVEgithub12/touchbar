@@ -7,6 +7,7 @@ namespace WindowsTouchBar.Components;
 internal class Button : Rectangle, ITouchComponent, IDisposable
 {
     private volatile bool _pressed;
+    private bool disposed;
     private readonly object pressLock = new();
     private int pressGeneration;
     private Image? _image;
@@ -14,14 +15,25 @@ internal class Button : Rectangle, ITouchComponent, IDisposable
     private Text? _text;
     private float _width;
     private SKColor _defaultColor;
+    private float? _textCenterY;
 
     public event EventHandler? OnTouchDown;
     public event EventHandler? OnTouchUp;
     public ITouchCommand? Command;
     public SKColor DownFillColor = new SKColor(40, 40, 40);
+    public float BackgroundBottomInset { get; set; }
 
     public bool TouchDownInterval { get; set; }
     public float Padding { get; set; } = 25;
+    public float? TextCenterY
+    {
+        get => _textCenterY;
+        set
+        {
+            _textCenterY = value;
+            UpdateTextPosition();
+        }
+    }
 
     public Button(SKRect size) : base(size)
     {
@@ -56,11 +68,11 @@ internal class Button : Rectangle, ITouchComponent, IDisposable
                 var x = (Width - ContentWidth) / 2;
                 x += _image.Width + 15;
 
-                _text.Center = new SKPoint(x + _text.Width / 2, Height / 2);
+                _text.Center = new SKPoint(x + _text.Width / 2, _textCenterY ?? Height / 2);
             }
             else
             {
-                _text.Center = new SKPoint(Width / 2, Height / 2);
+                _text.Center = new SKPoint(Width / 2, _textCenterY ?? Height / 2);
             }
         }
     }
@@ -188,7 +200,14 @@ internal class Button : Rectangle, ITouchComponent, IDisposable
 
             DrawBefore(canvas);
 
-            base.Draw(canvas);
+            if (BackgroundBottomInset > 0)
+            {
+                canvas.Save();
+                canvas.ClipRect(SKRect.Create(X, Y, Width, Math.Max(0, Height - BackgroundBottomInset)));
+                base.Draw(canvas);
+                canvas.Restore();
+            }
+            else base.Draw(canvas);
 
             if (_text?.Content is not null ||
                 _image is not null)
@@ -217,7 +236,7 @@ internal class Button : Rectangle, ITouchComponent, IDisposable
     {
         lock (pressLock)
         {
-            if (_pressed) return;
+            if (disposed || _pressed) return;
 
             _pressed = true;
             int generation = ++pressGeneration;
@@ -270,6 +289,27 @@ internal class Button : Rectangle, ITouchComponent, IDisposable
 
     public void Dispose()
     {
-        _image?.Dispose();
+        lock (pressLock)
+        {
+            if (disposed) return;
+            disposed = true;
+            bool wasPressed = _pressed;
+            _pressed = false;
+            pressGeneration++;
+            try
+            {
+                if (wasPressed)
+                {
+                    FillColor = _defaultColor;
+                    // Cancel a held command without treating destruction as a tap.
+                    Command?.TouchUp();
+                }
+            }
+            finally
+            {
+                _image?.Dispose();
+                _image = null;
+            }
+        }
     }
 }

@@ -23,7 +23,7 @@ internal sealed class MediaIconButton : Button
         canvas.Save();
         canvas.ClipRect(SKRect.Create(X, Y, Width, Height));
         using var background = new SKPaint { IsAntialias = true, Color = FillColor };
-        canvas.DrawRoundRect(SKRect.Create(X, Y, Width, Height), CornerRadius.X, CornerRadius.Y, background);
+        canvas.DrawRoundRect(SKRect.Create(X, Y, Width, Math.Max(0, Height - BackgroundBottomInset)), CornerRadius.X, CornerRadius.Y, background);
         canvas.Translate(MathF.Round(X + Width / 2), MathF.Round(Y + Height / 2));
         canvas.Scale(IconSize / 36);
         using var ink = new SKPaint

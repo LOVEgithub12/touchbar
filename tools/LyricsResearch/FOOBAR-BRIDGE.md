@@ -4,7 +4,7 @@ This bridge targets the installed foobar2000 2.25.5 portable profile and its exi
 
 ## Installation
 
-1. Ensure `TouchBar-USBIP\app` exists and is writable by the desktop user. Set the `TOUCHBAR_APP_DIR` environment variable to that directory before starting foobar2000. If the variable is absent, the bridge uses the relative path `TouchBar-USBIP\app\foobar-state.json`; edit `outputPath` in `FoobarBridge.js` when the app is elsewhere.
+1. Ensure `TouchBar-USBIP\app` exists and is writable by the desktop user. The current installer (`tools/InstallFoobarTouchBarBridge.ps1`) prepends `var TouchBarBridgeOutputPath = "C:\\your-repository\\TouchBar-USBIP\\app";` using the actual repository path. For a manual installation, set that variable before including the bridge, or set `TOUCHBAR_APP_DIR` before starting foobar2000. The variable takes precedence over the environment. Without either, the bridge falls back to relative `TouchBar-USBIP\app\foobar-state.json`. See [installation](../../docs/INSTALL.en.md) / [中文](../../docs/INSTALL.md).
 2. Back up `C:\Program Files\foobar2000\profile\foobox\script\js_panels\bottombar.js` before changing it. If `touchbar_bridge.js` already exists in `js_common`, back it up too.
 3. Copy `FoobarBridge.js` to `C:\Program Files\foobar2000\profile\foobox\script\js_common\touchbar_bridge.js`. Writing this installation folder may require elevation.
 4. Append this line **once**, at the end of `bottombar.js`:

@@ -10,7 +10,9 @@
   </PropertyGroup>
   <ItemGroup>
     <None Include="$(AppSource)/Resources/foobar2000.png" Link="Resources/foobar2000.png" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="$(AppSource)/Resources/aurora-ribbon-frames.png" Link="Resources/aurora-ribbon-frames.png" CopyToOutputDirectory="PreserveNewest" />
     <Compile Include="$(AppSource)/Components/Button.cs" Link="App/Button.cs" />
+    <Compile Include="$(AppSource)/Components/PageToggleButton.cs" Link="App/PageToggleButton.cs" />
     <Compile Include="$(AppSource)/Components/MediaIconButton.cs" Link="App/MediaIconButton.cs" />
     <Compile Include="$(AppSource)/Components/Spacer.cs" Link="App/Spacer.cs" />
     <Compile Include="$(AppSource)/Components/IComponent.cs" Link="App/IComponent.cs" />
@@ -18,14 +20,19 @@
     <Compile Include="$(AppSource)/Commands/*.cs" Link="App/Commands/%(Filename)%(Extension)" />
     <Compile Include="$(AppSource)/Models/*.cs" Link="App/Models/%(Filename)%(Extension)" />
     <Compile Include="$(AppSource)/Lyrics/*.cs" Link="App/Lyrics/%(Filename)%(Extension)" />
+    <Compile Include="$(AppSource)/Audio/AudioEnergyFrame.cs" Link="App/AudioEnergyFrame.cs" />
+    <Compile Include="$(AppSource)/Audio/AudioBandAnalyzer.cs" Link="App/AudioBandAnalyzer.cs" />
+    <Compile Include="$(AppSource)/Audio/AudioSpectrumAnalyzer.cs" Link="App/AudioSpectrumAnalyzer.cs" />
     <Compile Include="$(AppSource)/Views/*.cs" Link="App/Views/%(Filename)%(Extension)" />
     <Compile Include="$(AppSource)/Helpers/ForegroundTracker.cs" Link="App/ForegroundTracker.cs" />
     <Compile Include="$(AppSource)/Helpers/LyricsFontResolver.cs" Link="App/LyricsFontResolver.cs" />
     <Compile Include="$(AppSource)/Helpers/LyricsTextLayout.cs" Link="App/LyricsTextLayout.cs" />
     <Compile Include="$(AppSource)/Interop/BrightlessAPI.cs" Link="App/BrightlessAPI.cs" />
     <Compile Include="$(AppSource)/Interop/NativeBrightnessOsd.cs" Link="App/NativeBrightnessOsd.cs" />
+    <Compile Include="$(AppSource)/Interop/NativeVolumeControl.cs" Link="App/NativeVolumeControl.cs" />
     <Compile Include="$(AppSource)/Interop/ControlDiagnostics.cs" Link="App/ControlDiagnostics.cs" />
     <Compile Include="$(AppSource)/Interop/KeyboardBacklightAPI.cs" Link="App/KeyboardBacklightAPI.cs" />
+    <Compile Include="$(AppSource)/Interop/TouchBarBacklightService.cs" Link="App/TouchBarBacklightService.cs" />
     <Compile Include="$(AppSource)/Device/Hid/TouchReport.cs" Link="App/TouchReport.cs" />
     <Compile Include="$(AppSource)/Events/TouchEventArgs.cs" Link="App/TouchEventArgs.cs" />
     <Reference Include="SkiaSharp"><HintPath>$(AppDependencies)/SkiaSharp.dll</HintPath></Reference>
