@@ -12,6 +12,8 @@
 | Paused / stopped | Leave the lyric page; configured foreground application controls can take priority, otherwise show the main bar |
 | Browser during playback | Keep the current media/lyric context instead of replacing it with browser shortcuts |
 | Temporary brightness access | Tap the player icon to open the main bar; return after four idle seconds during playback, measured from the last actual touch release |
+| Game monitoring | Configure actual game executable paths to show CPU/GPU and FPS; see the [game guide](GAMING.md) for game and bridge setup |
+| Touching a dark bar | The first full gesture only wakes it; release and touch again to operate. Holding and the following 30 seconds retain brightness |
 | Holding a button | Repeat supported volume/brightness actions; mute remains a single toggle; releasing or disposing ends the command |
 | Drags and stray releases | Page/background changes require a completed valid tap; sliding into a control or a duplicate release does not start another action |
 
@@ -41,7 +43,7 @@ Both backgrounds retain side stardust pulses. Side effects stay above the origin
 ### Audio input
 
 - WASAPI shared-output loopback; only derived energy/spectrum is retained, with no microphone recording or stored PCM.
-- 512 logarithmic bands from 32 Hz to approximately 16.5 kHz; 4096-point bass and 2048-point mid/treble windows combine channel power to avoid opposite-phase cancellation.
+- The current spectrum uses a calibrated 1024-point frequency grid, multiscale FFT and combined channel power. At 48 kHz, a 128 ms bass window is zero-padded to 8192 points; shorter windows retain mid/treble transients. Gain adaptation and regional response preserve midrange peaks, while time-based smoothing reduces flicker. The old 512-band path remains for compatibility checks.
 - Analysis updates around 60 Hz. Rendering and transfer also depend on device acknowledgments and system load; this is not a guaranteed hardware frame rate.
 - The endpoint mix is not vocal separation. Accompaniment can still produce movement when vocals stop. Actual silence decays; already emitted particles can briefly remain before disappearing.
 - Exclusive WASAPI / ASIO may bypass the shared mix. Use an output mode that shared loopback can capture for visualization.
