@@ -16,9 +16,11 @@ This repository distributes **source code, required scripts, tests and documenta
 
 ![Media controls, function keys and three lyric background states](docs/images/overview.png)
 
-**[Interactive game monitor preview · switch game icons](https://lovegithub12.github.io/touchbar/)**
+**Game monitor · complete Touch Bar**
 
-The single-row preview includes CPU/GPU temperature, utilization and clocks, FPS/frame time, and the three volume icons. Use the dropdown to switch among 18 game/application icons. Values are fixed examples.
+[![Single-row game monitor: CPU/GPU temperature, utilization and clocks, FPS/frame time and volume icons](docs/images/game-monitor-demo.gif)](https://lovegithub12.github.io/touchbar/)
+
+The preview cycles through 18 game/application icons every two seconds; readings are fixed examples. **[Click the preview to switch icons with the dropdown](https://lovegithub12.github.io/touchbar/)**.
 
 **Midnight City lyric preview · 18 seconds, 20 fps, GIF under 4 MB**
 
@@ -36,7 +38,7 @@ The single-row preview includes CPU/GPU temperature, utilization and clocks, FPS
 
 ![Animated aurora ribbon background](docs/images/aurora-demo.gif)
 
-These are **offscreen renders of the current production views and renderers**. They are not hardware photographs. The Midnight City preview uses local song analysis and a lyric excerpt, without audio in the GIF; other demos use synthetic audio and sample text. Full panels retain the native 2008 × 60 aspect ratio; click an image to inspect the original. Hardware brightness, viewing distance and the GIF's 20 fps affect the perceived result. See [Development](docs/DEVELOPMENT.md#效果图复现--reproducing-the-previews) for reproduction steps.
+The game monitor animation is generated from the approved interactive layout. The media, function-key, lyric and music-background images are **offscreen renders of the current production views and renderers**. None are hardware photographs. The Midnight City preview uses local song analysis and a lyric excerpt, without audio in the GIF; other music-background demos use synthetic audio and sample text. Full panels retain the native 2008 × 60 aspect ratio; click the game monitor animation to open its interactive page, or another image to inspect its original. Hardware brightness, viewing distance and the music GIFs' 20 fps affect the perceived result. See [Development](docs/DEVELOPMENT.md#效果图复现--reproducing-the-previews) for reproduction steps.
 
 ## Features
 

@@ -16,9 +16,11 @@
 
 ![媒体栏、F 键页和三种歌词背景](docs/images/overview.png)
 
-**[游戏监控交互预览 · 可切换游戏图标](https://lovegithub12.github.io/touchbar/)**
+**游戏监控 · 完整 Touch Bar**
 
-保留单行布局、CPU／GPU 温度、占用率、频率、FPS／帧时间及三枚音量图标；下拉框可切换 18 个游戏／应用图标。预览使用固定示例数据。
+[![单行游戏监控栏：CPU／GPU 温度、占用率、频率，FPS／帧时间及音量图标](docs/images/game-monitor-demo.gif)](https://lovegithub12.github.io/touchbar/)
+
+图标每 2 秒自动轮播，共 18 个游戏／应用；数值为固定示例。**[点击预览，使用下拉框切换游戏图标](https://lovegithub12.github.io/touchbar/)**。
 
 **Midnight City 歌词预览 · 18 秒，20 fps，GIF 小于 4 MB**
 
@@ -36,7 +38,7 @@
 
 ![极光绸带动态演示](docs/images/aurora-demo.gif)
 
-这些图片由**当前生产视图和渲染器离屏绘制**，不是实物拍摄。Midnight City 预览使用本地歌曲分析与歌词片段，GIF 不含音频；其余演示使用合成音频与示例文字。完整栏保持 2008 × 60 原始比例；GitHub 会缩小显示，可点击图片查看原图。实机亮度、观看距离与 GIF 的 20 fps 会影响观感。生成方法见[开发说明](docs/DEVELOPMENT.md#效果图复现--reproducing-the-previews)。
+游戏监控动图由已确认的交互布局生成；媒体栏、F 键页、歌词和音乐背景图片由**当前生产视图和渲染器离屏绘制**，均不是实物拍摄。Midnight City 预览使用本地歌曲分析与歌词片段，GIF 不含音频；其余音乐背景演示使用合成音频与示例文字。完整栏保持 2008 × 60 原始比例；GitHub 会缩小显示；游戏监控动图点击后进入交互页，其余图片可点击查看原图。实机亮度、观看距离与音乐 GIF 的 20 fps 会影响观感。生成方法见[开发说明](docs/DEVELOPMENT.md#效果图复现--reproducing-the-previews)。
 
 ## 功能
 
