@@ -33,6 +33,7 @@ Retain existing LICENSE files, copyright headers and references. Before redistri
 - LibreHardwareMonitorLib：本机 TrafficMonitor 安装中的 0.9.4，程序集标注提交 `b8077435b898d57539956388cddf49f7dacb86f7`。上游源码 https://github.com/LibreHardwareMonitor/LibreHardwareMonitor/tree/b8077435b898d57539956388cddf49f7dacb86f7 ，MPL-2.0，许可证随 `Telemetry/LibreHardwareMonitor-LICENSE.txt` 保留；DLL 未修改。
 - PresentMon：GameTechDev 官方签名控制台版本 2.6.0，MIT 许可证随 `Telemetry/PresentMon-LICENSE.txt` 保留；下载来源与 SHA-256 见 `Telemetry/provenance.json`。二进制不纳入 Git。
 - `Resources/Games/`：用户指定的本机游戏图标，仅作游戏识别；权利属于原作者，不重新授权。带本机游戏绝对路径的 `game-monitor.json` 不纳入 Git。
+- `docs/game-monitor-preview/index.html` 内嵌同一组游戏识别图标与原音量图标，用于用户确认的交互布局预览；固定数值不是实时监控。图标权利仍归各自权利人。 / The interactive preview embeds the same game-identification and volume icons, with fixed example readings rather than live telemetry. Icon rights remain with their holders.
 
 
 ## TrafficMonitor plugin interface

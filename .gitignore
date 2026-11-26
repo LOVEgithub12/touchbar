@@ -75,6 +75,7 @@ previews/
 # Intentional public documentation assets
 !docs/images/*.png
 !docs/images/*.gif
+!docs/game-monitor-preview/index.html
 
 # Private media, machine state and experiments
 *.mp4

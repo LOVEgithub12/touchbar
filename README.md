@@ -16,6 +16,10 @@
 
 ![媒体栏、F 键页和三种歌词背景](docs/images/overview.png)
 
+**[游戏监控交互预览 · 可切换游戏图标](https://lovegithub12.github.io/touchbar/)**
+
+保留单行布局、CPU／GPU 温度、占用率、频率、FPS／帧时间及三枚音量图标；下拉框可切换 18 个游戏／应用图标。预览使用固定示例数据。
+
 **Midnight City 歌词预览 · 18 秒，20 fps，GIF 小于 4 MB**
 
 ![Midnight City Touch Bar 预览](docs/images/midnight-city-demo.gif)
@@ -53,6 +57,8 @@
 | 应用快捷栏 | 在 `settings.json` 中按前台进程配置按钮；附带 Edge、Chrome 示例和 Explorer 对话框支持 |
 | 启动恢复 | 登录后零延迟任务与无窗口启动器、等待设备就绪、失败重试、可取消启动；提供针对已确认 VBoxUSB Code 37 故障的独立开机恢复工具 |
 
+**游戏监控栏**采用单行布局，从左到右依次为：游戏图标、CPU 温度／占用率／频率、FPS 与帧时间、GPU 温度／占用率／频率；右侧保留静音、音量减和音量加按钮。
+
 详见[功能与操作](docs/USAGE.md)。
 
 ## 快速开始
@@ -74,7 +80,7 @@ pwsh -NoProfile -File .\tools\Build.ps1 `
   -DotNetPath "$env:LOCALAPPDATA\Microsoft\dotnet\dotnet.exe" -PrepareRuntime
 ```
 
-接着按[安装指南](docs/INSTALL.md)安装并绑定 USB/IP 传输；**首次克隆只完成构建还不能直接点亮设备**。该指南说明驱动配置、歌词桥接、自启动和恢复 Apple 驱动的方法。当前 USB/IP 路线保持 Secure Boot 开启，无需启用测试签名或安装仓库内的旧 DFRDisplayKm 驱动，也不需要 WSL。
+接着按[安装指南](docs/INSTALL.md)安装并绑定 USB/IP 传输；**首次克隆只完成构建还不能直接点亮设备**。该指南说明驱动配置、歌词桥接、自启动和恢复 Apple 驱动的方法。当前 USB/IP 路线无需进入 Windows 安全模式，保持 Secure Boot 开启，无需启用测试签名或安装仓库内的旧 DFRDisplayKm 驱动，也不需要 WSL。
 
 已完成设备配置后，在普通桌面用户会话中运行：
 

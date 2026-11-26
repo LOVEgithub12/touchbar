@@ -16,6 +16,10 @@ This repository distributes **source code, required scripts, tests and documenta
 
 ![Media controls, function keys and three lyric background states](docs/images/overview.png)
 
+**[Interactive game monitor preview · switch game icons](https://lovegithub12.github.io/touchbar/)**
+
+The single-row preview includes CPU/GPU temperature, utilization and clocks, FPS/frame time, and the three volume icons. Use the dropdown to switch among 18 game/application icons. Values are fixed examples.
+
 **Midnight City lyric preview · 18 seconds, 20 fps, GIF under 4 MB**
 
 ![Midnight City Touch Bar preview](docs/images/midnight-city-demo.gif)
@@ -53,6 +57,8 @@ These are **offscreen renders of the current production views and renderers**. T
 | Application shortcuts | Per-process buttons in `settings.json`, including Edge/Chrome examples and Explorer dialog support |
 | Startup recovery | Immediate logon task, windowless launcher, device readiness waits, retries and cancellation; a separate boot recovery tool targets a confirmed VBoxUSB Code 37 failure |
 
+The **single-row game monitor** shows, from left to right: the game icon, CPU temperature/utilization/clock, FPS and frame time, and GPU temperature/utilization/clock. Mute, volume down and volume up remain on the right.
+
 See [Usage and features](docs/USAGE.en.md).
 
 ## Quick start
@@ -74,7 +80,7 @@ pwsh -NoProfile -File .\tools\Build.ps1 `
   -DotNetPath "$env:LOCALAPPDATA\Microsoft\dotnet\dotnet.exe" -PrepareRuntime
 ```
 
-Then configure the USB/IP transport using the [installation guide](docs/INSTALL.en.md). **Building a fresh clone alone does not initialize the hardware.** The guide covers driver binding, the lyrics bridge, startup and restoring the Apple driver. The current USB/IP route keeps Secure Boot enabled and requires neither test signing, the historical DFRDisplayKm driver nor WSL.
+Then configure the USB/IP transport using the [installation guide](docs/INSTALL.en.md). **Building a fresh clone alone does not initialize the hardware.** The guide covers driver binding, the lyrics bridge, startup and restoring the Apple driver. The current USB/IP route does not require Windows Safe Mode, keeps Secure Boot enabled and requires neither test signing, the historical DFRDisplayKm driver nor WSL.
 
 After device setup, launch from a normal desktop-user session:
 

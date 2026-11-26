@@ -16,7 +16,7 @@
 | Optional lyrics | Existing foobar2000 foobox/JSplitter setup; the automatic installer targets the profile layout below |
 | Optional checks | Node.js 22 for offline bridge checks |
 
-This is a source project validated on an existing hardware setup, rather than a universal Boot Camp installer. The current route requires neither WSL, disabling Secure Boot nor enabling test signing. Historical driver references in this repository are not part of these instructions.
+This is a source project validated on an existing hardware setup, rather than a universal Boot Camp installer. The current route does not require Windows Safe Mode, WSL, disabling Secure Boot or enabling test signing. Historical driver references in this repository are not part of these instructions.
 
 ## 2. Build the source
 
