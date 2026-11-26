@@ -18,10 +18,23 @@ The repository includes upstream source, local modifications, independent tools,
 ## 视觉与文档资源 / Visual and documentation assets
 
 - `Resources/aurora-ribbon-frames.png` 是由用户提供的参考视频加工得到的生产绸带图集，原视频不在本次发布内容中。未提供该素材的单独通用授权，不能把它视为 CC0 或自动纳入第三方源码许可证。 / `Resources/aurora-ribbon-frames.png` is a production ribbon atlas derived from a user-provided reference video. That video is excluded from this update. A separate general asset license has not been supplied; it should not be treated as CC0 or automatically covered by a source dependency's license.
+- `Resources/spectrum-atlas-v3.json` 与 `spectrum-response.json` 是根据用户参考提取或校准的轮廓/响应数据；保留其来源边界，不自动声明为通用开源视觉素材。 / The spectrum atlas and response resources are contour/calibration data derived from user references, without a separate general-purpose visual-asset license.
 - `Resources/foobar2000.png` 是播放器识别图标；foobar2000 的名称、标志与图标属于各自权利人，不表示官方合作。 / The foobar2000 resource identifies the player; its name, marks and icon remain with their rights holders and imply no affiliation.
-- `docs/images/` 是当前应用代码的离屏绘制效果图，输入为本仓库生成器中的合成谐波与演示文字，不包含歌曲音频、私人歌词文件或原始视频帧。截图中仍会显示上述应用资源。 / `docs/images/` contains offscreen application renders driven by synthetic harmonics and demonstration text from the generator. No song audio, private lyric files or raw reference-video frames are included. The renders still display the application assets noted above.
+- `Resources/chrome.png` 从本机安装的 Chrome 应用图标提取，用于浏览器页面识别；Chrome 名称和标志属于 Google，不表示官方合作或背书。 / `Resources/chrome.png` was extracted from the locally installed Chrome application icon to identify its browser page. The Chrome name and logo belong to Google and imply no affiliation or endorsement.
+- `docs/images/` 为应用离屏渲染。`midnight-city-demo.gif` 含 M83《Midnight City》的歌词片段与音乐分析驱动的视觉，无音频；歌曲与歌词权利属于各自权利人，本文不重新授权。其余演示使用合成谐波和示例文字。原歌曲、歌词源文件及参考视频不包含在仓库中。 / Documentation images are offscreen renders. The Midnight City GIF contains a lyric excerpt and visuals driven by music analysis, without audio; song and lyric rights remain with their holders. Other demos use synthetic harmonics and sample text. Original songs, lyric files and reference videos are excluded.
 - Apple、Microsoft、Windows 等名称和商标属于其各自权利人。 / Apple, Microsoft, Windows and other names/marks belong to their respective holders.
 
 保留各目录现有 LICENSE、版权头和引用。若计划将本仓库作为产品再分发，应先确认应用基底及视觉素材的完整授权范围；不要用新增一个根目录 MIT 文件掩盖来源差异。
 
 Retain existing LICENSE files, copyright headers and references. Before redistributing this repository as a product, establish the complete permissions for the application base and visual assets. Adding a root MIT file would not resolve those differing origins.
+
+## 可选游戏监控依赖 / Optional game monitoring dependencies
+
+- LibreHardwareMonitorLib：本机 TrafficMonitor 安装中的 0.9.4，程序集标注提交 `b8077435b898d57539956388cddf49f7dacb86f7`。上游源码 https://github.com/LibreHardwareMonitor/LibreHardwareMonitor/tree/b8077435b898d57539956388cddf49f7dacb86f7 ，MPL-2.0，许可证随 `Telemetry/LibreHardwareMonitor-LICENSE.txt` 保留；DLL 未修改。
+- PresentMon：GameTechDev 官方签名控制台版本 2.6.0，MIT 许可证随 `Telemetry/PresentMon-LICENSE.txt` 保留；下载来源与 SHA-256 见 `Telemetry/provenance.json`。二进制不纳入 Git。
+- `Resources/Games/`：用户指定的本机游戏图标，仅作游戏识别；权利属于原作者，不重新授权。带本机游戏绝对路径的 `game-monitor.json` 不纳入 Git。
+
+
+## TrafficMonitor plugin interface
+
+The optional CPU/GPU bridge includes the unmodified V1.86 interface from zhongyang219/TrafficMonitor (commit 02a817a069bac6bf4d263b5209d9c1b07fe2f950). Its Anti 996 License is preserved in [tools/TrafficMonitorBridge/upstream/LICENSE](tools/TrafficMonitorBridge/upstream/LICENSE). See the bridge README for API provenance and runtime dependencies.

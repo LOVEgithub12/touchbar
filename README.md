@@ -1,6 +1,6 @@
 # Touch Bar for Windows
 
-**在 Windows 上使用 Apple Touch Bar：媒体控制、F1–F12、同步歌词与音乐可视化。**
+**在 Windows 上使用 Apple Touch Bar：媒体控制、F1–F12、同步歌词、音乐可视化与游戏监控。**
 
 **简体中文** · [English](README.en.md)
 
@@ -16,6 +16,10 @@
 
 ![媒体栏、F 键页和三种歌词背景](docs/images/overview.png)
 
+**Midnight City 歌词预览 · 18 秒，20 fps，GIF 小于 4 MB**
+
+![Midnight City Touch Bar 预览](docs/images/midnight-city-demo.gif)
+
 **实时频谱与分层粒子 · 完整 Touch Bar**
 
 ![完整 Touch Bar 动态频谱演示](docs/images/spectrum-demo.gif)
@@ -28,7 +32,7 @@
 
 ![极光绸带动态演示](docs/images/aurora-demo.gif)
 
-这些图片由**当前生产视图和渲染器离屏绘制**，采用合成音频输入与演示文字，不是实物拍摄，也不使用个人歌曲。完整栏保持 2008 × 60 原始比例；GitHub 会缩小显示，可点击图片查看原图。实机亮度、观看距离与 GIF 的 20 fps 会影响观感。生成方法见[开发说明](docs/DEVELOPMENT.md#效果图复现--reproducing-the-previews)。
+这些图片由**当前生产视图和渲染器离屏绘制**，不是实物拍摄。Midnight City 预览使用本地歌曲分析与歌词片段，GIF 不含音频；其余演示使用合成音频与示例文字。完整栏保持 2008 × 60 原始比例；GitHub 会缩小显示，可点击图片查看原图。实机亮度、观看距离与 GIF 的 20 fps 会影响观感。生成方法见[开发说明](docs/DEVELOPMENT.md#效果图复现--reproducing-the-previews)。
 
 ## 功能
 
@@ -36,17 +40,18 @@
 |---|---|
 | 媒体控制 | 上一首、播放/暂停、下一首；音量增减与静音，支持按住连发 |
 | F1–F12 | 媒体栏左侧固定 **F / 1–12** 入口；点击显式切换，F 页左侧返回，不依赖物理 Fn 的状态推断 |
-| 屏幕亮度 | 使用 Windows 亮度接口与原生 OSD；依赖设备 WMI/Boot Camp 支持 |
+| 屏幕亮度 | Windows 原生 OSD，修复未先调音量时不弹亮度条；依赖设备 WMI/Boot Camp 支持 |
 | 键盘背光 | Apple HID 调节，静默操作，不额外弹出提示 |
 | 同步歌词 | foobar2000 + foobox/JSplitter 桥接；本地 LRC、内嵌歌词，单行卡拉 OK 紫蓝着色 |
 | 长歌词与多语言 | 优先使用 34 px 字体，必要时缩到 28 px，再平滑滚动；中、英、日、韩混排字体回退 |
 | 两种音乐背景 | 极光绸带 / 实时频谱；点击歌词按 **极光 → 频谱 → 关闭** 循环，选择会保存 |
-| 实时频谱 | 512 个对数频带，区分低、中、高频；多层粒子独立悬停、下落和淡出；最新版本提高右半区粒子的纵向分布与可见度 |
+| 实时频谱 | 1024 点音乐驱动频谱、多尺度 FFT 与频率响应校准；减少快速闪动，保留中频分离峰、不规则轮廓及抬高、延长停留的粒子 |
 | 两侧星尘 | 两种背景均保留两侧星尘脉动与边缘过渡，歌词页按钮背景底部略收窄，让下方光效更明显 |
+| 游戏监控 | 前台游戏按完整进程路径识别，显示 CPU/GPU 温度、占用、频率与 FPS/帧时间，保留音量图标；支持统一 TrafficMonitor 桥接 |
 | 自动切页 | 播放时保留媒体/歌词页；暂停后，前台浏览器等已配置应用可显示专属快捷栏 |
 | 临时主栏 | 点击歌词页的播放器图标回主栏，最后一次触摸释放后空闲 4 秒回歌词；按住时不跳页 |
 | 应用快捷栏 | 在 `settings.json` 中按前台进程配置按钮；附带 Edge、Chrome 示例和 Explorer 对话框支持 |
-| 启动恢复 | 登录启动、等待设备就绪、失败重试、可取消启动；提供针对已确认 VBoxUSB Code 37 故障的独立开机恢复工具 |
+| 启动恢复 | 登录后零延迟任务与无窗口启动器、等待设备就绪、失败重试、可取消启动；提供针对已确认 VBoxUSB Code 37 故障的独立开机恢复工具 |
 
 详见[功能与操作](docs/USAGE.md)。
 
@@ -85,6 +90,7 @@ pwsh -NoProfile -File .\tools\Build.ps1 `
 
 | 文档 | 内容 |
 |---|---|
+| [游戏监控 / Game monitoring](docs/GAMING.md) | 添加游戏、统一 CPU/GPU 桥接、温度/频率口径、PresentMon FPS 与独立采集选项 |
 | [安装指南](docs/INSTALL.md) / [English](docs/INSTALL.en.md) | 环境、构建、USB/IP、foobar2000、登录启动、恢复原驱动 |
 | [功能与操作](docs/USAGE.md) / [English](docs/USAGE.en.md) | 页切换、歌词、背景、快捷栏、故障排查 |
 | [开发说明 / Development](docs/DEVELOPMENT.md) | 架构、离线测试、效果图复现、实机验收边界（中英双语） |

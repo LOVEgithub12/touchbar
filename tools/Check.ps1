@@ -8,7 +8,7 @@ foreach ($name in @('RuntimeChecks','LyricsChecks','NavigationChecks','PlaybackC
     if ($LASTEXITCODE -ne 0) { throw "$name failed." }
 }
 $windowsPowerShell = Join-Path $env:WINDIR 'System32\WindowsPowerShell\v1.0\powershell.exe'
-foreach ($name in @('StartupChecks','AutostartLifecycleChecks')) {
+foreach ($name in @('StartupChecks','AutostartLifecycleChecks','LoginTaskChecks','SensorAutostartChecks')) {
     & $windowsPowerShell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File (Join-Path $root "tests\$name.ps1")
     if ($LASTEXITCODE -ne 0) { throw "$name failed." }
 }

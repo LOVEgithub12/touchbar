@@ -2,6 +2,8 @@
 
 [中文首页](../README.md) · [English home](../README.en.md)
 
+开发约定见 [AGENTS.md](../AGENTS.md)，游戏配置与桥接口径见 [游戏监控](GAMING.md)。本机部署记录不属于公开源码。 / See AGENTS.md for development conventions and the game guide for configuration and metric definitions. Machine-specific deployment records remain local.
+
 ## 架构 / Architecture
 
 | 模块 / Module | 职责 / Responsibility |
@@ -12,9 +14,10 @@
 | `Lyrics/FoobarLyricsService.cs` | 读取桥接文件、处理新鲜度与本地歌词 / Bridge state, freshness and local lyric resolution |
 | `LyricsPlaybackClock`、`LyricsFrameAnimator`、`LyricsViewport` | 单调插值、每帧时间轴、长歌词滚动 / Monotonic interpolation, per-frame timeline and long-line scrolling |
 | `Audio/AudioEnergyService.cs` | WASAPI 共享回环、端点重连和派生能量 / Shared loopback, endpoint reconnection and derived energy |
-| `AudioSpectrumAnalyzer` | 双 FFT 窗与对数频带、声道功率合并 / Dual FFT windows, logarithmic bands and combined channel power |
+| `AudioSpectrumAnalyzer` | 多尺度 FFT、1024 点校准频谱、声道功率与区域响应 / Multiscale FFT, calibrated 1024-point spectrum, channel power and regional response |
 | `AuroraRibbonRenderer` | 绸带插帧、能量包络、星空和两侧星尘 / Ribbon interpolation, energy envelope, stars and side dust |
 | `SpectrumBackgroundRenderer` | 频谱填充、历史、独立粒子发射与消退 / Spectrum fill, history and independent particle emission/decay |
+| `Gaming/`、`GameMonitorView` | 游戏检测、共享 CPU/GPU 快照、PresentMon 与单行布局 / Game detection, shared CPU/GPU snapshots, PresentMon and single-row layout |
 | `Interop/NativeVolumeControl.cs` | 独立音量命令发送到 Shell / Standalone volume commands sent to the Shell |
 | `TouchBar-USBIP/` | 手动与登录启动、UTF-8 状态解析、停止与取消 / Manual/login launch, UTF-8 state parsing, stop and cancellation |
 
@@ -56,7 +59,7 @@ pwsh -NoProfile -File .\tools\Check.ps1 -DotNetPath 'C:\path\dotnet.exe' -NodePa
 
 | 检查 / Check | 覆盖 / Coverage |
 |---|---|
-| RuntimeChecks | 实际视图与触控源码，23 项：命令释放、音量分流、显式 F 页、背景循环、频谱分离/静音/反相、粒子滞留、平滑包络、边缘/布局 / Actual view/touch source; 23 checks for command release, volume routing, explicit F page, backgrounds, spectrum/silence/stereo phase, particles, envelopes, edges and layout |
+| RuntimeChecks | 58 项生产视图、触摸、背光、频谱、游戏、原生亮度 OSD 与 CPU/GPU 共享快照检查 / 58 checks covering production views, touch, backlight, spectrum, games, native brightness OSD and CPU/GPU snapshots |
 | LyricsChecks | LRC、本地匹配、服务状态、偏好 / LRC, local matching, service state and preferences |
 | NavigationChecks | 触摸释放后的 4 秒返回、按住保护 / Four-second return after release and held-touch protection |
 | PlaybackClockChecks | 插值、跳转、漂移和陈旧样本 / Interpolation, seeks, drift and stale samples |
@@ -66,11 +69,14 @@ pwsh -NoProfile -File .\tools\Check.ps1 -DotNetPath 'C:\path\dotnet.exe' -NodePa
 | UsbIpHostChecks | 假本机 USB/IP 服务，序号分发、取消竞态、帧与触摸协议 / Fake local host, request routing, cancellation races, frame and touch protocol |
 | StartupChecks | UTF-8、stderr、错误/缺失 JSON、超时进程 / UTF-8, stderr, malformed/missing JSON and process timeout |
 | AutostartLifecycleChecks | PS5.1 隔离副本、启动取消、失败检测 / Isolated PS5.1 copies, cancellation and failure detection |
+| LoginTaskChecks / SensorAutostartChecks | 无窗口启动、任务配置、父进程匹配与退出约束；不注册真实任务 / Windowless launch, task configuration, parent matching and exit rules, without registering real tasks |
 | Test-FoobarBridge.cjs | 假 JSplitter、状态、命令去重/验证和重载 / Mock JSplitter state, command deduplication/validation and reload |
 
 检查不连接真实 USB，不发送真实键盘输入，不更改驱动或登录项；USB/IP 协议检查使用本机假服务。启动检查会创建并清理临时测试进程。FontChecks 需要 Windows CJK 字体，精简系统可能需要补齐对应语言字体。RuntimeChecks/FontChecks 引用主程序 Release 输出里的依赖，所以必须先构建主程序；`Check.ps1` 已按此顺序执行。
 
 Checks do not open real USB devices, send real keyboard input or change drivers/login entries. USB/IP checks use a fake local service. Startup checks create and clean up temporary fixture processes. FontChecks needs Windows CJK fonts, which minimal systems may lack. RuntimeChecks/FontChecks reference the application's Release dependencies, so build the app first; `Check.ps1` does this automatically.
+
+原生桥接另外运行 `tools/TrafficMonitorBridge/Build.ps1 -ZigPath <zig.exe>` 与 `Test-ABI.ps1 -ZigPath <zig.exe>`，使用隔离夹具测试 x64 ABI、单位与缺失值、10,001 次无元数据查询更新和生产者重启。此项需要 Zig，不包含在默认 .NET/Node 检查中。 / Native bridge checks require Zig and are separate from the default .NET/Node entry.
 
 GitHub Actions 通过 `.github/workflows/checks.yml` 在 Windows 上运行相同入口。自动化成功只表示离线行为通过，不能证明实际设备、驱动或系统重启正常。
 
@@ -100,6 +106,7 @@ Fonts and wall-clock timing can produce small pixel differences. Do not commit t
 |---|---|
 | 传输 / Transport | 首帧 ACK、正确尺寸、连续显示与触摸 / First-frame ACK, correct size, continuous display and touch |
 | 控制 / Controls | 单击、长按、滑出、静音、F 页往返；管理员任务管理器前台音量 / Tap, hold, slide-out, mute, F-page round trip; volume over elevated Task Manager |
+| 背光 / Backlight | 全暗时保持鼠标不动，第一组触摸只唤醒，第二次操作；长按、30 秒保亮和歌词重叠；区分真实触摸与模拟事件硬件探针 / With the mouse still, the first dark-state gesture wakes and the second operates; hold, 30-second lease and lyric overlap; distinguish physical touch from a hardware probe with simulated events |
 | 歌词 / Lyrics | 换歌、seek、暂停、长句、中英日韩；4 秒回页不打断长按 / Track changes, seeks, pause, long/mixed text; idle return does not interrupt a hold |
 | 背景 / Backgrounds | 循环与重启保留、安静/高低频、粒子消退、边缘不截断 / Cycling/persistence, quiet/bass/treble response, particle decay and blended edges |
 | 页面 / Pages | 播放时浏览器不抢栏，暂停后能换栏 / Browser cannot replace playback controls, but can take priority after pause |

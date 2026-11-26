@@ -4,6 +4,7 @@ internal enum ForegroundViewSelection
 {
     FunctionPage,
     ExplorerDialog,
+    GameMonitor,
     ConfiguredApplication,
     Lyrics,
     DefaultMedia,
@@ -18,11 +19,16 @@ internal static class ForegroundViewPriority
         bool configuredApplication,
         bool playerPlaying,
         bool lyricsActive,
-        bool defaultMedia)
+        bool defaultMedia,
+        bool browserMainActive = false,
+        bool gameActive = false,
+        bool gameMainActive = false)
     {
         if (functionPageActive) return ForegroundViewSelection.FunctionPage;
         if (explorerDialogActive) return ForegroundViewSelection.ExplorerDialog;
+        if (gameActive) return gameMainActive ? ForegroundViewSelection.DefaultMedia : ForegroundViewSelection.GameMonitor;
         if (playerPlaying) return ForegroundViewSelection.Lyrics;
+        if (browserMainActive && configuredApplication) return ForegroundViewSelection.DefaultMedia;
         if (configuredApplication) return ForegroundViewSelection.ConfiguredApplication;
         if (lyricsActive) return ForegroundViewSelection.Lyrics;
         return defaultMedia ? ForegroundViewSelection.DefaultMedia : ForegroundViewSelection.DefaultFunctions;

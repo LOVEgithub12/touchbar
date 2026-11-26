@@ -184,7 +184,7 @@ internal sealed class AudioEnergyService : IDisposable
                 int block = format.BlockAlign;
                 int count = e.BytesRecorded - e.BytesRecorded % block;
                 if (count == 0) return;
-                spectrum = spectrumRequested ? spectrum ?? new AudioSpectrumAnalyzer(format.SampleRate, format.Channels) : null;
+                spectrum = spectrumRequested ? spectrum ?? new AudioSpectrumAnalyzer(format.SampleRate, format.Channels, referenceSpectrum: true) : null;
                 for (int offset = 0; offset < count; offset += block)
                 {
                     for (int channel = 0; channel < format.Channels; channel++)

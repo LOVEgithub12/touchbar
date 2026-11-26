@@ -9,8 +9,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Content Include="Resources\Games\*.png" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="game-monitor.json" Condition="Exists('game-monitor.json')" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="Telemetry\**\*" CopyToOutputDirectory="PreserveNewest" />
+    <EmbeddedResource Include="Resources\spectrum-atlas-v3.json" />
+    <EmbeddedResource Include="Resources\spectrum-response.json" />
     <Content Include="Audio\NAudio-LICENSE.txt" CopyToOutputDirectory="PreserveNewest" />
     <Content Include="Resources\foobar2000.png" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="Resources\chrome.png" CopyToOutputDirectory="PreserveNewest" />
     <Content Include="Resources\aurora-ribbon-frames.png" CopyToOutputDirectory="PreserveNewest" />
     <Content Include="settings.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

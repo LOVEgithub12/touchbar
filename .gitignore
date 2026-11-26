@@ -32,6 +32,7 @@ tools/downloads/
 *.gif
 *.bmp
 !WindowsTouchBar-master/WindowsTouchBar/Resources/aurora-ribbon-frames.png
+!WindowsTouchBar-master/WindowsTouchBar/Resources/chrome.png
 *.htm
 *.html
 tools/**/[Bb]acklightResearch/*.txt
@@ -49,6 +50,7 @@ tools/**/wsl-preflight.json
 tools/**/repositories.json
 
 # Local snapshots, verification bundles, and handoff archives
+/archives/
 backup-20261108/
 verification-20261108/
 verification-usbip-20261108/
@@ -84,3 +86,23 @@ previews/
 /TouchBar-Custom/
 /迁移与使用说明.md
 /tools/MoveTouchBarWorkspace.ps1
+
+# Machine-specific game paths and locally extracted game icons
+/WindowsTouchBar-master/WindowsTouchBar/game-monitor.json
+
+# Per-user login task registration backups
+/TouchBar-USBIP/autostart-registration-*.json
+
+# Private handoff, deployment reports and generated native bridge fixtures
+/docs/AI_HANDOFF.md
+/docs/*_2026-*.md
+/tools/TrafficMonitorBridge/build/
+/tools/TrafficMonitorBridge/plugins/
+/tools/TrafficMonitorBridge/config.ini
+/WindowsTouchBar-master/WindowsTouchBar/Telemetry/cpu-source.txt
+/preview-output/
+*.flac
+*.lrc
+*.obj
+*.lib
+*.exp

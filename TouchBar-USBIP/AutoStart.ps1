@@ -1,6 +1,7 @@
 [CmdletBinding()]
 param()
 $ErrorActionPreference = 'Stop'
+$startupClock = [Diagnostics.Stopwatch]::StartNew()
 $app = Join-Path $PSScriptRoot 'app\WindowsTouchBar.exe'
 $statusPath = Join-Path $PSScriptRoot 'app\WindowsTouchBar.status.log'
 $logPath = Join-Path $PSScriptRoot 'autostart.log'
@@ -39,6 +40,12 @@ try {
     if (-not $ownsMutex -or (Test-Path -LiteralPath $disabledPath)) { exit 0 }
     $cancelEvent = New-Object System.Threading.EventWaitHandle($false, [System.Threading.EventResetMode]::ManualReset, 'Local\WindowsTouchBar.AutoStart.Cancel')
     Set-Content -LiteralPath $logPath -Value ((Get-Date -Format o) + ' Login startup requested.') -Encoding UTF8
+    $identity = [Security.Principal.WindowsIdentity]::GetCurrent()
+    $principal = New-Object Security.Principal.WindowsPrincipal($identity)
+    $isAdmin = $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
+    $self = Get-Process -Id $PID
+    Write-StartupLog ('Startup context: user=' + $identity.Name + '; session=' + $self.SessionId + '; elevated=' + $isAdmin + '; helper process started=' + $self.StartTime.ToString('o') + '.')
+    if ($self.SessionId -eq 0 -or $isAdmin) { throw 'Touch Bar requires the ordinary logged-in desktop user token.' }
     if ((Find-RunningApp).Count -gt 0) { Write-StartupLog 'Application is already running.'; exit 0 }
     if (-not (Test-Path -LiteralPath $app) -or -not (Test-Path -LiteralPath $usbipd)) {
         throw 'Touch Bar application or usbipd is missing.'
@@ -46,6 +53,7 @@ try {
     $deadline = [DateTime]::UtcNow.AddSeconds(150)
     $attempt = 0
     $lastReason = 'Waiting for the USBIP service and Touch Bar.'
+    $lastLoggedReason = ''
     while ([DateTime]::UtcNow -lt $deadline) {
         if (Test-StartupCancelled) { Write-StartupLog 'Automatic startup cancelled or disabled.'; exit 0 }
         if ((Find-RunningApp).Count -gt 0) { Write-StartupLog 'Application was started separately.'; exit 0 }
@@ -66,7 +74,7 @@ try {
             if ([uint32]$problem.Data -ne 0) { throw ('Touch Bar driver problem code: ' + $problem.Data) }
             if (Test-StartupCancelled) { Write-StartupLog 'Automatic startup cancelled before launch.'; exit 0 }
             $attempt++
-            Write-StartupLog ('Starting application; attempt ' + $attempt + '.')
+            Write-StartupLog ('Starting application; attempt ' + $attempt + '; helper elapsed=' + $startupClock.ElapsedMilliseconds + ' ms.')
             $launchTime = Get-Date
             $process = Start-Process -FilePath $app -ArgumentList '--usbip','--background' -WorkingDirectory (Split-Path $app) -WindowStyle Hidden -PassThru
             $startDeadline = [DateTime]::UtcNow.AddSeconds(25)
@@ -79,7 +87,7 @@ try {
                 if ((Test-Path -LiteralPath $statusPath) -and (Get-Item -LiteralPath $statusPath).LastWriteTime -ge $launchTime) {
                     $status = Get-Content -LiteralPath $statusPath -Raw
                     if ($status -match '(?m)^RUNNING:') {
-                        Write-StartupLog ('RUNNING; process ' + $process.Id + '. Startup helper exiting.')
+                        Write-StartupLog ('RUNNING; process ' + $process.Id + '; helper elapsed=' + $startupClock.ElapsedMilliseconds + ' ms; application elapsed=' + [int]((Get-Date)-$launchTime).TotalMilliseconds + ' ms. Startup helper exiting.')
                         exit 0
                     }
                 }
@@ -99,8 +107,12 @@ try {
         } catch {
             $lastReason = $_.Exception.Message
             if ($attempt -ge 3 -or (Find-RunningApp).Count -gt 0) { throw }
+            if ($lastReason -ne $lastLoggedReason) { Write-StartupLog ('Waiting: ' + $lastReason); $lastLoggedReason = $lastReason }
         }
-        [void]$cancelEvent.WaitOne(3000)
+        # Catch an early-ready device promptly after logon; use the old backoff
+        # after 15 s and for actual launch failures, without changing the deadline.
+        $retryMilliseconds = if ($attempt -gt 0 -or $startupClock.Elapsed.TotalSeconds -ge 15) { 3000 } else { 500 }
+        [void]$cancelEvent.WaitOne($retryMilliseconds)
     }
     throw ('Startup wait expired. ' + $lastReason)
 } catch {

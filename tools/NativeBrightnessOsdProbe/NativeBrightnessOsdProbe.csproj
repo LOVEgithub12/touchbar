@@ -1,9 +1,10 @@
 <Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <OutputType>Exe</OutputType>
-    <TargetFramework>net6.0-windows</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-    <PlatformTarget>x64</PlatformTarget>
-  </PropertyGroup>
+ <PropertyGroup><OutputType>Exe</OutputType><TargetFramework>net6.0-windows</TargetFramework><ImplicitUsings>enable</ImplicitUsings><Nullable>enable</Nullable><PlatformTarget>x64</PlatformTarget><AppSource>../../WindowsTouchBar-master/WindowsTouchBar</AppSource></PropertyGroup>
+ <ItemGroup>
+  <Compile Include="$(AppSource)/Interop/NativeBrightnessOsd.cs" Link="NativeBrightnessOsd.cs" />
+  <Compile Include="$(AppSource)/Interop/BrightlessAPI.cs" Link="BrightlessAPI.cs" />
+  <Compile Include="$(AppSource)/Interop/ControlDiagnostics.cs" Link="ControlDiagnostics.cs" />
+  <PackageReference Include="NAudio.Wasapi" Version="2.2.1" />
+  <PackageReference Include="System.Management" Version="6.0.0" />
+ </ItemGroup>
 </Project>

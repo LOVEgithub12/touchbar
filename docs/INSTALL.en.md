@@ -103,7 +103,9 @@ The app supports matching local `.lrc`, profile lyric files and embedded timesta
 
 ## 5. Login startup and recovery (optional)
 
-Run root `Enable-Autostart.cmd` as a normal user to configure **HKCU Run**, or `Disable-Autostart.cmd` to disable it. This starts **after user login**, not as a display service before login. The helper waits for usbipd/device readiness, retries within a limit and supports cancellation through Stop.
+Run root `Enable-Autostart.cmd` as a normal user to create an **immediate current-user logon task**, or `Disable-Autostart.cmd` to disable it. The task uses the ordinary interactive desktop token (InteractiveToken / LeastPrivilege), with no trigger delay, AC-power requirement or idle requirement. It starts **after user login**. The installer backs up the existing registration, saves and verifies the task, then removes the legacy HKCU Run entry only when it points to this installation. Failed installation rolls back. Backups are `TouchBar-USBIP/autostart-registration-*.json`.
+
+The helper waits for usbipd/device readiness. During the first 15 seconds, before any app launch attempt, a failed readiness check is followed by a 0.5-second wait; later checks and failed app launches use a 3-second wait. The existing 150-second readiness deadline, three-launch limit and Stop cancellation remain. `TouchBar-USBIP/autostart.log` records the user, session, privilege context and startup timings. Hardware initialization waits retain their previous settings.
 
 For the confirmed VBoxUSB boot failure Code 37 / `C0000034`, an additional administrator installer is available:
 
@@ -114,6 +116,8 @@ For the confirmed VBoxUSB boot failure Code 37 / `C0000034`, an additional admin
 It copies the recovery script into protected `%ProgramFiles%\TouchBar-Startup` and installs a SYSTEM boot task, so a privileged task never executes user-writable repository code. Use it for that matching failure, rather than as a substitute for setup diagnosis. A working existing task does not need reinstallation.
 
 UTF-8 device-state parsing and startup cancellation have been tested. Another full hardware reboot after the latest fixes remains pending. After relocating the repository, reconfigure login startup and the bridge path.
+
+The login task uses the compiled GUI-subsystem `SilentLogin.exe` to start hidden PowerShell children, without a console window during normal login. Build this helper before enabling startup. Games and the CPU/GPU bridge are separate optional steps in the [game guide](GAMING.md).
 
 ## 6. Updating and restoring
 

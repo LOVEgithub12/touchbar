@@ -4,6 +4,18 @@
 
 Records observable behavior and validation scope. Offline checks are not hardware compatibility certification.
 
+## 2026-11-26 — 游戏监控、统一桥接与音乐响应 / Games, unified telemetry and music response
+
+- 新增游戏页，按前台进程完整路径检测，过滤 LOL 客户端；单行 CPU/GPU 温度、占用、频率与 FPS/帧时间，游戏图标临时返回媒体栏并保留音量按钮。 / Foreground full-path game detection, League client exclusion, single-row telemetry, game-icon navigation and volume controls.
+- CPU/GPU 统一通过 TrafficMonitor 共享内存桥接，CPU 使用原生 Core Average，六项数据同包读取；独立采集器保留为可选方案。元数据仅初始化时读取，避免宿主共享字符串并发访问；ABI 检查覆盖连续更新及重启。 / Unified TrafficMonitor CPU/GPU packets, native Core Average, optional independent collector and initialization-only metadata binding, with update/restart ABI coverage.
+- 频谱改为 1024 点音乐驱动响应，多尺度 FFT、增益适应、区域灵敏度与按时间平滑；增强中频峰组、不规则边缘及粒子抛高与停留。 / 1024-point music-driven response, multiscale FFT, gain adaptation, regional sensitivity and time-based smoothing, plus distinct midrange peaks, irregular edges and visible particle flight.
+- 修复首次调亮度必须先调音量的问题，处理 Explorer 重启和并发初始化；完善全暗触摸唤醒、首手势拦截、按住与松手保亮。 / Independent brightness OSD initialization, Explorer restart/concurrency handling and dark-bar wake/gesture/hold behavior.
+- 登录任务立即触发，GUI 启动助手隐藏 PowerShell 窗口，缩短设备就绪初期轮询；Chrome 增加临时主栏入口。 / Immediate login task, windowless launcher, faster early readiness checks and a Chrome temporary-main button.
+- 发布游戏配置示例、桥接源码和依赖来源说明；缺少可选硬件库时仍构建启动助手，允许干净克隆完成离线检查。 / Public game example, bridge source/provenance and dependency-free sensor-host builds for clean-clone offline checks.
+- 更新生产渲染预览，增加 18 秒、20 fps、4 MB 内 Midnight City 无声歌词 GIF。个人音乐、歌词源文件、游戏安装路径与运行日志不发布。 / Refreshed production-render previews and an 18-second, 20-fps Midnight City lyric GIF under 4 MB, without audio or personal source/configuration files.
+
+验证入口为 `tools/Check.ps1` 与原生桥接 `Test-ABI.ps1`；真机长期运行、完整重启及睡眠唤醒仍需单独验收。视觉为依据参考的音乐响应实现，不声明与参考视频逐帧完全一致。 / Validation uses Check.ps1 and the native ABI checks. Long-running hardware behavior, full reboot and suspend/resume require separate acceptance; visual similarity is not a claim of frame-exact reproduction.
+
 ## 2026-11-11 — 媒体、歌词与频谱更新 / Media, lyrics and spectrum update
 
 相对最初源码提交 `5545f6c` 的累计更新。 / Cumulative changes since initial source commit `5545f6c`.

@@ -8,6 +8,7 @@ using WindowsTouchBar.Lyrics;
 using WindowsTouchBar.Models;
 using WindowsTouchBar.Views;
 using WindowsTouchBar.Audio;
+using WindowsTouchBar.Gaming;
 
 namespace WindowsTouchBar;
 
@@ -32,6 +33,13 @@ internal class TouchBar : IDisposable
     private MediaFunctionsView? mediaFunctionsView;
     private ExplorerDialogView? explorerDialogView;
     private LyricsView? lyricsView;
+    private GameMonitorView? gameMonitorView;
+    private GameTelemetryService? gameTelemetry;
+    private GameCatalog gameCatalog = new(Array.Empty<GameDefinition>());
+    private readonly GameNavigation gameNavigation = new();
+    private bool gameMainRequested;
+    private long nextGameContextPoll;
+    private long nextGameRender;
     private FoobarLyricsService? lyricsService;
     private TouchBarBacklightService? touchBarBacklight;
     private AudioEnergyService? audioEnergy;
@@ -40,6 +48,9 @@ internal class TouchBar : IDisposable
     private readonly LyricsNavigation lyricsNavigation = new();
     private bool lastNavigationLyrics;
     private bool mainRequested;
+    private readonly BrowserMainNavigation browserNavigation = new();
+    private bool lastBrowserMainActive;
+    private bool browserMainRequested;
     private bool backgroundChangeRequested;
     private int animationSampleFrames;
     private long animationSampleStart;
@@ -110,6 +121,8 @@ internal class TouchBar : IDisposable
             if (run)
             {
                 touchBarBacklight = new TouchBarBacklightService(ControlDiagnostics.Write);
+                gameCatalog = GameCatalog.Load(ControlDiagnostics.Write);
+                gameTelemetry = new GameTelemetryService(ControlDiagnostics.Write);
                 audioEnergy = new AudioEnergyService(ControlDiagnostics.Write);
                 audioEnergy.Start();
                 lyricsService = new FoobarLyricsService(Path.Combine(AppContext.BaseDirectory, "foobar-state.json"), ControlDiagnostics.Write);
@@ -139,7 +152,21 @@ internal class TouchBar : IDisposable
             long frameStarted = System.Diagnostics.Stopwatch.GetTimestamp();
             UpdateSafely(() =>
             {
-                if (lyricsNavigation.ShowLyrics != lastNavigationLyrics) RefreshView();
+                long now = System.Diagnostics.Stopwatch.GetTimestamp();
+                if (now >= nextGameContextPoll)
+                {
+                    UpdateGameContext();
+                    nextGameContextPoll = now + System.Diagnostics.Stopwatch.Frequency / 2;
+                }
+                if (gameNavigation.Tick()) RefreshView();
+                if (ReferenceEquals(currentView, gameMonitorView) && now >= nextGameRender)
+                {
+                    gameMonitorView!.SetSnapshot(gameNavigation.ActiveGame, gameTelemetry?.Snapshot ?? TelemetrySnapshot.Empty);
+                    gameMonitorView.Invalidate();
+                    nextGameRender = now + System.Diagnostics.Stopwatch.Frequency / 4;
+                }
+                if (lyricsNavigation.ShowLyrics != lastNavigationLyrics ||
+                    browserNavigation.MainActive != lastBrowserMainActive) RefreshView();
                 if (ReferenceEquals(currentView, lyricsView) && lyricsView!.NeedsAnimation)
                 {
                     currentView!.Invalidate();
@@ -251,10 +278,20 @@ internal class TouchBar : IDisposable
 
     private void CreateViews()
     {
+        gameMonitorView = new GameMonitorView(Width, Height);
+        gameMonitorView.OnInvalidate += CurrentView_OnInvalidate;
+        gameMonitorView.MainRequested += () =>
+        {
+            if (lastTouchEvent?.TouchEventType == Events.TouchEventType.TouchUp) gameMainRequested = true;
+        };
         defaultFunctionsView = new DefaultFunctionsView(Width, Height);
         defaultFunctionsView.OnInvalidate += CurrentView_OnInvalidate;
         customFunctionsView = new CustomFunctionsView(Width, Height);
         customFunctionsView.OnInvalidate += CurrentView_OnInvalidate;
+        customFunctionsView.MainRequested += () =>
+        {
+            if (lastTouchEvent?.TouchEventType == Events.TouchEventType.TouchUp) browserMainRequested = true;
+        };
         mediaFunctionsView = new MediaFunctionsView(Width, Height);
         mediaFunctionsView.OnInvalidate += CurrentView_OnInvalidate;
         explorerDialogView = new ExplorerDialogView(Width, Height);
@@ -289,7 +326,9 @@ internal class TouchBar : IDisposable
             bool visibleChanged = lyricSnapshot.ShowLyrics != snapshot.ShowLyrics || lyricSnapshot.Active != snapshot.Active;
             lyricSnapshot = snapshot;
             lyricsNavigation.SetPlaying(snapshot.ShowLyrics);
+            if (settings?.LyricsEnabled != false && snapshot.ShowLyrics) browserNavigation.Cancel();
             visibleChanged |= lyricsNavigation.ShowLyrics != lastNavigationLyrics;
+            visibleChanged |= browserNavigation.MainActive != lastBrowserMainActive;
             mediaFunctionsView!.SetSnapshot(snapshot);
             lyricsView!.SetSnapshot(snapshot);
             if (settings?.LyricsEnabled == false)
@@ -312,15 +351,27 @@ internal class TouchBar : IDisposable
         var previous = currentProcess;
         currentProcess = process;
 
+        UpdateGameContext();
         RefreshView();
         if (!ReferenceEquals(previous, process)) previous?.Process?.Dispose();
+    }
+
+    private void UpdateGameContext()
+    {
+        int pid = 0;
+        try { pid = currentProcess?.Process?.Id ?? 0; } catch (InvalidOperationException) { }
+        gameNavigation.SetForeground(gameCatalog.Find(currentProcess?.Process, currentProcess?.Handle ?? IntPtr.Zero), pid, currentProcess?.Handle ?? IntPtr.Zero);
     }
 
     private void RefreshView()
     {
         lastNavigationLyrics = lyricsNavigation.ShowLyrics;
+        gameTelemetry?.SetProcess(gameNavigation.ActivePid);
         if (functionPageActive)
         {
+            gameNavigation.CancelMain();
+            browserNavigation.SetContext(null, IntPtr.Zero, false, true);
+            lastBrowserMainActive = false;
             DisposeViewLastTouch();
             currentSettingView = null;
             currentView = defaultFunctionsView;
@@ -343,6 +394,10 @@ internal class TouchBar : IDisposable
             view = settings?.Views?.FirstOrDefault(v => v.Type == ViewType.Custom && string.Equals(v.Application, name, StringComparison.OrdinalIgnoreCase));
         }
 
+        browserNavigation.SetContext(view?.Application, currentProcess?.Handle ?? IntPtr.Zero,
+            settings?.LyricsEnabled != false && lyricSnapshot.ShowLyrics, false);
+        lastBrowserMainActive = browserNavigation.MainActive;
+
         ForegroundButton[] dialogButtons = Array.Empty<ForegroundButton>();
         if (string.Equals("explorer.exe", name, StringComparison.OrdinalIgnoreCase) &&
             currentProcess is not null &&
@@ -359,7 +414,20 @@ internal class TouchBar : IDisposable
             configuredApplication: view is not null,
             playerPlaying: settings?.LyricsEnabled != false && lyricSnapshot.ShowLyrics,
             lyricsActive: settings?.LyricsEnabled != false && lyricSnapshot.Active,
-            defaultMedia: settings?.Views?.Any(v => v.Type == ViewType.Media && v.Default) is true);
+            defaultMedia: settings?.Views?.Any(v => v.Type == ViewType.Media && v.Default) is true,
+            browserMainActive: lastBrowserMainActive,
+            gameActive: gameNavigation.ActiveGame is not null,
+            gameMainActive: gameNavigation.MainActive);
+
+        if (selection == ForegroundViewSelection.GameMonitor)
+        {
+            if (!ReferenceEquals(currentView, gameMonitorView)) DisposeViewLastTouch();
+            currentSettingView = null;
+            currentView = gameMonitorView;
+            gameMonitorView!.SetSnapshot(gameNavigation.ActiveGame, gameTelemetry?.Snapshot ?? TelemetrySnapshot.Empty);
+            gameMonitorView.Invalidate();
+            return;
+        }
 
         if (selection == ForegroundViewSelection.ExplorerDialog)
         {
@@ -408,7 +476,7 @@ internal class TouchBar : IDisposable
         {
             if (disposedValue || currentView is null) return;
             bool lyricsVisible = ReferenceEquals(currentView, lyricsView) && lyricSnapshot.ShowLyrics;
-            touchBarBacklight?.SetLyricsVisible(lyricsVisible);
+            touchBarBacklight?.SetLyricsVisible(lyricsVisible || ReferenceEquals(currentView, gameMonitorView));
             audioEnergy?.SetActive(lyricsVisible && lyricsView!.VisualizerEnabled,
                 lyricsVisible && lyricsView!.Background == LyricsBackground.Spectrum);
             string viewName = currentView.GetType().Name;
@@ -431,13 +499,25 @@ internal class TouchBar : IDisposable
 
     private void TouchReceiver_Event(Events.TouchEventArgs evt)
     {
+        bool wakeOnly = touchBarBacklight?.HandleTouch(evt.TouchEventType) ?? false;
         UpdateSafely(() =>
         {
             switch (evt.TouchEventType)
             {
-                case Events.TouchEventType.TouchDown: lyricsNavigation.TouchDown(); break;
-                case Events.TouchEventType.TouchMove: lyricsNavigation.TouchMove(); break;
-                case Events.TouchEventType.TouchUp: lyricsNavigation.TouchUp(); break;
+                case Events.TouchEventType.TouchDown:
+                    lyricsNavigation.TouchDown(); browserNavigation.TouchDown(); gameNavigation.TouchDown(); break;
+                case Events.TouchEventType.TouchMove:
+                    lyricsNavigation.TouchMove(); browserNavigation.TouchMove(); gameNavigation.TouchMove(); break;
+                case Events.TouchEventType.TouchUp:
+                    lyricsNavigation.TouchUp(); browserNavigation.TouchUp(); gameNavigation.TouchUp(); break;
+            }
+            if (wakeOnly)
+            {
+                // Consume the complete waking gesture, including moves/releases,
+                // so a blind tap cannot press a key or change the lyric background.
+                if (evt.TouchEventType == Events.TouchEventType.TouchDown)
+                    currentView?.Invalidate();
+                return;
             }
             lastTouchEvent = evt;
             currentView?.ReceiveTouch(evt);
@@ -467,6 +547,24 @@ internal class TouchBar : IDisposable
                 lyricsNavigation.OpenMain();
                 ControlDiagnostics.Write("Navigation: player icon opened main controls; idle return after 4 seconds.");
                 RefreshView();
+            }
+            if (browserMainRequested)
+            {
+                browserMainRequested = false;
+                if (browserNavigation.OpenMain())
+                {
+                    ControlDiagnostics.Write("Navigation: Chrome icon opened main controls; idle return after 4 seconds.");
+                    RefreshView();
+                }
+            }
+            if (gameMainRequested)
+            {
+                gameMainRequested = false;
+                if (gameNavigation.OpenMain())
+                {
+                    ControlDiagnostics.Write("Navigation: game icon opened main controls; idle return after 4 seconds.");
+                    RefreshView();
+                }
             }
         });
     }
@@ -525,6 +623,7 @@ internal class TouchBar : IDisposable
             TouchReceiver.Failed -= TouchReceiver_Failed;
             settingsFileListener?.Dispose();
             DisposeViewLastTouch();
+            gameMonitorView?.Dispose();
             currentProcess?.Process?.Dispose();
             skSurface?.Dispose();
             try { FrameBuffer.Dispose(); }
@@ -536,6 +635,7 @@ internal class TouchBar : IDisposable
         lyricsService?.Dispose();
         touchBarBacklight?.Dispose();
         audioEnergy?.Dispose();
+        gameTelemetry?.Dispose();
     }
 
     public void Dispose()

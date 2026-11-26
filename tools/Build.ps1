@@ -3,6 +3,8 @@ param([string]$DotNetPath = 'dotnet', [switch]$PrepareRuntime)
 $ErrorActionPreference = 'Stop'
 $root = Split-Path -Parent $PSScriptRoot
 $source = Join-Path $root 'WindowsTouchBar-master\WindowsTouchBar'
+& (Join-Path $root 'TouchBar-USBIP/Build-SilentLogin.ps1')
+& (Join-Path $PSScriptRoot 'GameTelemetry/Build.ps1')
 & $DotNetPath build (Join-Path $source 'WindowsTouchBar.csproj') -c Release
 if ($LASTEXITCODE -ne 0) { throw 'Application build failed.' }
 if ($PrepareRuntime) {

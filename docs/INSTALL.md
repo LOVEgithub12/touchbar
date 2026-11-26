@@ -103,7 +103,9 @@ C:\Program Files\foobar2000\profile\foobox\script\js_common\
 
 ## 5. 登录启动与故障恢复（可选）
 
-普通用户运行根目录 `Enable-Autostart.cmd` 写入 **HKCU Run**；`Disable-Autostart.cmd` 关闭。它是**用户登录后**启动，不是登录前显示服务。启动器等待 usbipd/设备就绪，有限次重试，停止命令可取消等待中的启动。
+普通用户运行根目录 `Enable-Autostart.cmd`，创建**当前用户登录时立即触发的计划任务**；`Disable-Autostart.cmd` 关闭。任务使用当前用户的普通桌面令牌（InteractiveToken / LeastPrivilege）、零延迟，不要求接通电源或空闲。它在**用户登录后**启动。安装器先备份原入口，保存并验证任务后才移除同一路径的旧 HKCU Run 项；失败时回退。备份在 `TouchBar-USBIP/autostart-registration-*.json`。
+
+启动器等待 usbipd/设备就绪：前 15 秒且尚未尝试启动时，每轮检查失败后的等待为 0.5 秒；之后或启动失败后为 3 秒。保留 150 秒就绪等待期限、最多三次应用启动及停止取消。日志 `TouchBar-USBIP/autostart.log` 记录用户、会话、权限及启动耗时。硬件初始化所需等待保持原有设置。
 
 针对已确认的 VBoxUSB 开机 Code 37 / `C0000034`，另有管理员安装器：
 
@@ -114,6 +116,8 @@ C:\Program Files\foobar2000\profile\foobox\script\js_common\
 它将恢复脚本复制到受保护的 `%ProgramFiles%\TouchBar-Startup` 并建立 SYSTEM 开机任务，而不让高权限任务执行用户可写的仓库脚本。只用于对应故障，不能代替安装检查。已有正常恢复任务时无需重复安装。
 
 最新 UTF-8 设备状态解析及启动取消逻辑已测试；修复后最终整机重启仍需再次验收。迁移目录后，应重新设置登录启动与桥接路径。
+
+登录任务通过编译的 GUI 子系统 `SilentLogin.exe` 启动隐藏的 PowerShell 子进程，正常登录不出现控制台窗口。构建入口会生成该助手；启用自启动前先完成构建。游戏与 CPU/GPU 桥接按 [游戏监控指南](GAMING.md) 配置，属于独立可选步骤。
 
 ## 6. 更新与回退
 

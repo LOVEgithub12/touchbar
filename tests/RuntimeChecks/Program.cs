@@ -12,6 +12,12 @@ using WindowsTouchBar.Models;
 using WindowsTouchBar.Lyrics;
 using WindowsTouchBar.Views;
 
+if (args.Length == 4 && args[0] == "--live-game-telemetry")
+{
+    LiveTelemetryProbe.Run(int.Parse(args[1]), int.Parse(args[2]), Path.GetFullPath(args[3]));
+    return 0;
+}
+
 if (args.Length == 2 && args[0] == "--render-docs")
 {
     DocumentationPreview.Render(Path.GetFullPath(args[1]));
@@ -43,12 +49,21 @@ if (args.Length == 2 && args[0] == "--preview-aurora-animation")
 
 var checks = new (string Name, Action Run)[]
 {
+    ("Native brightness creates its own flyout before volume is used", BrightnessOsdChecks.ColdAndWarm),
+    ("Native brightness re-resolves Explorer restart and concurrent creation", BrightnessOsdChecks.RestartAndRace),
+    ("Native brightness isolates unavailable, ambiguous and unresponsive shell endpoints", BrightnessOsdChecks.FailureIsolation),
+    ("TrafficMonitor CPU/GPU: atomic snapshot, freshness, source validation and restart", TrafficMonitorBridgeChecks.Run),
+    ("Game detection rejects clients and other paths, Cemu needs game title", GameMonitorChecks.Detection),
+    ("Game icon opens main with held-touch protection and four-second return", GameMonitorChecks.Navigation),
+    ("PresentMon parses PID and swapchains without adding launcher FPS", GameMonitorChecks.Frames),
+    ("Single-row gaming layout preserves volume controls and both panel widths", GameMonitorChecks.Layout),
     ("Volume taps and repeats use system commands without key-down or key-up", CheckSystemVolumeCommands),
     ("Only standalone volume keys bypass the foreground keyboard path", CheckVolumeRouting),
     ("Untouched buttons do not release unrelated keys", CheckUntouchedRelease),
     ("Sliding into a button cannot start a second action", CheckSlideDoesNotPress),
     ("Player handoff releases the previous command", CheckPlayerHandoff),
     ("F-page toggle responds only to a completed touch", CheckFunctionPageToggle),
+    ("Chrome return icon follows Refresh and preserves shortcuts at both widths", ChromeButtonChecks.Run),
     ("Repeated press/release leaves no late key-downs", CheckRepeatedPress),
     ("Disposing a pressed button cancels repeats and releases its command", CheckDisposedPress),
     ("Missing image keeps the same visible text button", CheckMissingImage),
@@ -59,11 +74,37 @@ var checks = new (string Name, Action Run)[]
     ("The live spectrum separates tones, keeps stereo power and clears during silence", CheckSpectrum),
     ("Spectrum particles remain scattered at different heights after the fill falls", CheckSpectrumParticleTrail),
     ("Aurora responds to supplied energy, decays in silence, and stays inside its area", CheckAuroraEnergy),
+    ("Atlas contours load and use the video descriptor space", CheckSpectrumAtlas),
+    ("Atlas generator and runtime share native 512-bin descriptors and energy", SpectrumAtlasChecks.DescriptorParity),
+    ("Live frequency peaks follow their input without selecting a recorded contour", SpectrumReferenceChecks.AudioDrivenPeaks),
+    ("Spectrum smoothing follows elapsed time across frame rates", SpectrumReferenceChecks.FrameCadence),
+    ("Crest markers hold the preceding local peak and fall back to silence", SpectrumReferenceChecks.CrestMemory),
+    ("Live spectrum keeps stereo power and changes with tone frequency", SpectrumReferenceChecks.CalibratedAudio),
+    ("Separate bass and treble pulses remain synchronized with their own audio", SpectrumReferenceChecks.IndependentPulses),
+    ("Body attack and release retain their timing at different display rates", SpectrumReferenceChecks.TransientCadence),
+    ("Rapid spectrum fluctuations are damped while musical pulses stay distinct", SpectrumReferenceChecks.FlickerSuppression),
+    ("Floating-point headroom does not invent clipped harmonics", SpectrumReferenceChecks.FloatingPointHeadroom),
+    ("Sustained input gain adapts before the visual frequency response", SpectrumReferenceChecks.InputLevelAdaptation),
+    ("Input level adaptation preserves musical accents and silent gaps", SpectrumReferenceChecks.AdaptationPreservesBeatAndSilence),
+    ("Bass-heavy music retains real mid/treble peaks, independent accents and deep valleys", SpectrumReferenceChecks.BassDominatedMix),
+    ("Regional sensitivity never turns quiet background noise into music", SpectrumReferenceChecks.QuietNoiseDoesNotGrow),
+    ("Middle harmonic peaks stay tall, separate and confined to their audio frequencies", SpectrumReferenceChecks.MiddleHarmonicGroup),
+    ("Native-size particles lift visibly, linger and stop on steady input", SpectrumReferenceChecks.VisibleParticleFlight),
+    ("Irregular edges stay bounded and stable on a sustained tone", SpectrumReferenceChecks.IrregularEdgeStability),
+    ("Full-scale backgrounds stay bounded and the spectrum remains grounded", CheckPeakBounds),
     ("Aurora separates bass and treble response; foreground selection preserves playback", CheckBandResponseAndViewPriority),
     ("Loopback gaps ease out instead of clearing audio energy", CheckAudioEnergyGapDecay),
     ("Quiet sustained vocals keep a visible center wave", CheckQuietVoiceVisibility),
     ("Rapid level changes produce a smooth visual envelope", CheckVisualEnvelopeSmoothing),
     ("Backlight transition mode is retried as full/on", CheckBacklightTransitionMode),
+    ("A dark-bar touch wakes and consumes the whole first gesture", TouchWakeChecks.OffGesture),
+    ("Lit and dim controls accept the first tap", TouchWakeChecks.LitGesture),
+    ("Held fingers and repeated touches extend the wake lease", TouchWakeChecks.HeldAndRenewed),
+    ("Lyrics and touch keep-awake policies overlap independently", TouchWakeChecks.LyricsOverlap),
+    ("Visible lyrics renew a lit panel throughout desktop idle", TouchWakeChecks.ContinuousLyrics),
+    ("Desktop activity prevents restoring a stale off state", TouchWakeChecks.DesktopActivity),
+    ("Touch wake retries transitions and recovers from feature-write failures", TouchWakeChecks.TransitionAndFailure),
+    ("Backlight I/O leaves render policy responsive and disposal blocks late input", TouchWakeChecks.RenderAndDisposal),
     ("Lyric-area aurora stays contained and clips long lyrics", CheckLongLyrics),
     ("Configured layouts render and fit both panel widths", CheckLayouts)
 };
@@ -435,7 +476,11 @@ static void CheckSpectrum()
         renderer.Draw(canvas, bitmap.Width, bitmap.Height, bins, 1, elapsed);
     }
     for (int i = 0; i < 24; i++) Draw(values, 1.0 / 60);
-    Require(renderer.HasEnergy && bitmap.GetPixel(204, 42).Green > 150, "Bass did not paint a bright filled peak.");
+    bool painted = false;
+    for (int y = 8; y < bitmap.Height - 4 && !painted; y++)
+        for (int x = 90; x < 330; x++)
+            if (bitmap.GetPixel(x, y).Green > 130) { painted = true; break; }
+    Require(renderer.HasEnergy && painted, "Bass did not paint a bright filled peak.");
     Feed(8192);
     Require(analyzer.Latest.ToArray().All(value => value == 0), "Silence retained FFT peaks.");
     Draw(analyzer.Latest.Span, .016);
@@ -454,12 +499,21 @@ static void CheckSpectrum()
         view.Draw(display);
         Thread.Sleep(12);
     }
-    var spectrumPixel = strip.GetPixel(820, 42);
-    Require(spectrumPixel.Green > 150, "Spectrum was not composited into the lyric page.");
+    int litX = -1, litY = -1;
+    // Probe the spectrum's lower band. The lyric glyphs occupy the vertical
+    // centre and can also contain cyan gradient pixels, which made the old
+    // first-match search test a text pixel instead of the background renderer.
+    for (int y = 56; y >= 40 && litX < 0; y--)
+        for (int x = 616; x < 1588; x++)
+        {
+            var p = strip.GetPixel(x, y);
+            if (p.Green > 210 && p.Blue > 180) { litX = x; litY = y; break; }
+        }
+    Require(litX >= 0, "Spectrum was not composited into the lyric page.");
     view.Background = LyricsBackground.Off;
     view.Clear(display);
     view.Draw(display);
-    Require(strip.GetPixel(820, 42) == SKColors.Black, "Switching off left background pixels on the lyric page.");
+    Require(strip.GetPixel(litX, litY) == SKColors.Black, "Switching off left spectrum pixels on the lyric page.");
     foreach (var button in view.Components.OfType<Button>()) button.Dispose();
 }
 
@@ -485,9 +539,182 @@ static void CheckSpectrumParticleTrail()
             if (bitmap.GetPixel(x, y).Green >= 105) litCells.Add((x / 8, y / 5));
     Require(litCells.Count > 50 && litCells.Select(cell => cell.Y).Distinct().Count() >= 4,
         "Visible residue did not persist across different heights after the spectrum fell.");
-    for (int i = 0; i < 48; i++) Draw(ReadOnlySpan<float>.Empty);
+    for (int i = 0; i < 120; i++) Draw(ReadOnlySpan<float>.Empty);
     Require(!renderer.HasEnergy && bitmap.Pixels.All(p => p == SKColors.Black),
         "Particles remained visible after the audio stopped.");
+}
+
+static void CheckSpectrumAtlas()
+{
+    SpectrumAtlas? atlas = SpectrumAtlas.Shared;
+    Require(atlas is not null, "Embedded spectrum Atlas was not loaded.");
+    Require(atlas!.Count == 256 && atlas.Width == 512, "Unexpected Atlas dimensions.");
+    float max = 0;
+    for (int i = 0; i < atlas.Profiles.Length; i++) max = Math.Max(max, atlas.Profiles[i]);
+    Require(max > .85f && max <= 1.001f, "Atlas profiles were not decoded from the traced uint8 range.");
+
+    Span<float> shape = stackalloc float[SpectrumAtlas.ShapeBands];
+    Span<float> broad = stackalloc float[SpectrumAtlas.BroadBands];
+    var bins = Enumerable.Range(0, AudioSpectrumAnalyzer.BinCount)
+        .Select(i => MathF.Pow(MathF.Sin(i * .044f), 2)).ToArray();
+    SpectrumAtlas.BuildDescriptor(bins, shape, broad);
+    Require(shape.ToArray().All(float.IsFinite) && broad.ToArray().All(float.IsFinite),
+        "Live descriptor produced non-finite values.");
+    Require(Math.Abs(shape.ToArray().Sum(v => v * v) - 1) < .02f, "Shape descriptor is not L2-normalized.");
+    Require(atlas.Select(bins, .8f, .2f, -1) >= 0, "Atlas could not select a live contour.");
+}
+
+static void CheckPeakBounds()
+{
+    foreach (var (width, height) in new[] { (972, 56), (1134, 56), (480, 28) })
+    {
+        var aurora = new AuroraRibbonRenderer();
+        var spectrum = new SpectrumBackgroundRenderer();
+        aurora.SetEnergy(1, 1, 1, 1);
+        var bins = new float[AudioSpectrumAnalyzer.BinCount];
+        using var bitmap = new SKBitmap(width, height, SKColorType.Rgba8888, SKAlphaType.Opaque);
+        using var canvas = new SKCanvas(bitmap);
+        for (int frame = 0; frame < 180; frame++)
+        {
+            for (int i = 0; i < bins.Length; i++)
+                bins[i] = (frame / 12 + i / 18) % 2 == 0 ? 1 : .15f;
+            foreach (bool ribbon in new[] { true, false })
+            {
+                canvas.Clear(SKColors.Black);
+                if (ribbon) aurora.Draw(canvas, width, height, .05);
+                else spectrum.Draw(canvas, width, height, bins, 1, .05);
+                for (int x = 0; x < width; x++)
+                    Require(bitmap.GetPixel(x, 0) == SKColors.Black && bitmap.GetPixel(x, height - 1) == SKColors.Black,
+                        $"{(ribbon ? "Aurora" : "Spectrum")} touched the edge at x={x} on {width}x{height}.");
+                if (ribbon) continue;
+
+                int minTop = height, minTopX = -1;
+                var litColumns = new bool[width];
+                var litPixels = new int[width];
+                for (int x = 2; x < width - 2; x++)
+                    for (int y = 1; y < height - 1; y++)
+                        if (bitmap.GetPixel(x, y) != SKColors.Black)
+                        {
+                            litColumns[x] = true;
+                            litPixels[x]++;
+                            if (y < minTop) { minTop = y; minTopX = x; }
+                        }
+                var topPixel = minTopX >= 0 ? bitmap.GetPixel(minTopX, minTop) : SKColors.Black;
+                var matrix = canvas.TotalMatrix;
+                Require(minTop >= Math.Max(7, height / 7),
+                    $"Spectrum exceeded its height budget on {width}x{height}: top={minTop}, x={minTopX}, color={topPixel}, matrix={matrix.ScaleX},{matrix.SkewX},{matrix.TransX};{matrix.SkewY},{matrix.ScaleY},{matrix.TransY}.");
+                // Ignore dim particle bloom when classifying component shape;
+                // otherwise overlapping glows bridge several stars into a fake
+                // solid waveform body.
+                var strong = new bool[width, height];
+                for (int x = 3; x < width - 3; x++)
+                    for (int y = 1; y < height - 1; y++)
+                    {
+                        var color = bitmap.GetPixel(x, y);
+                        strong[x, y] = Math.Max(color.Red, Math.Max(color.Green, color.Blue)) >= 24;
+                    }
+                // Classify connected lit regions instead of columns. A single
+                // column cannot distinguish a detached waveform body from a
+                // small flight particle that deliberately hangs above the wave.
+                var visited = new bool[width, height];
+                var labels = new int[width, height];
+                var members = new List<(int X, int Y)>();
+                var frontier = new Queue<(int X, int Y)>();
+                int componentId = 0;
+                for (int x = 3; x < width - 3; x++)
+                {
+                    if (!litColumns[x]) continue;
+                    for (int y = 1; y < height - 1; y++)
+                    {
+                        if (visited[x, y] || !strong[x, y]) continue;
+                        componentId++;
+                        members.Clear();
+                        int area = 0, left = x, right = x, top = y, bottom = y;
+                        visited[x, y] = true;
+                        labels[x, y] = componentId;
+                        members.Add((x, y));
+                        frontier.Enqueue((x, y));
+                        while (frontier.Count > 0)
+                        {
+                            var (cx, cy) = frontier.Dequeue();
+                            area++;
+                            left = Math.Min(left, cx);
+                            right = Math.Max(right, cx);
+                            top = Math.Min(top, cy);
+                            bottom = Math.Max(bottom, cy);
+                            for (int ny = Math.Max(1, cy - 1); ny <= Math.Min(height - 2, cy + 1); ny++)
+                                for (int nx = Math.Max(3, cx - 1); nx <= Math.Min(width - 4, cx + 1); nx++)
+                                {
+                                    if (visited[nx, ny] || !strong[nx, ny]) continue;
+                                    visited[nx, ny] = true;
+                                    labels[nx, ny] = componentId;
+                                    members.Add((nx, ny));
+                                    frontier.Enqueue((nx, ny));
+                                }
+                        }
+
+                        // A real waveform mass has a solid interior. Particle
+                        // blooms can span a similar bounding box but are made
+                        // from thin rings/crosses and erode completely.
+                        int solidCorePixels = 0;
+                        foreach (var (cx, cy) in members)
+                        {
+                            bool solid = true;
+                            for (int ny = cy - 1; ny <= cy + 1 && solid; ny++)
+                                for (int nx = cx - 1; nx <= cx + 1; nx++)
+                                    if (labels[nx, ny] != componentId) { solid = false; break; }
+                            if (solid) solidCorePixels++;
+                        }
+
+                        int componentWidth = right - left + 1;
+                        bool broadEnoughToBeWaveform = componentWidth >= 18 && area >= 180 && solidCorePixels >= 12;
+                        bool startsHigh = top < height / 2;
+                        bool hasLowerBody = bottom >= height - Math.Max(8, height / 3);
+                        if (broadEnoughToBeWaveform && startsHigh && !hasLowerBody)
+                        {
+                            string diagnostic = Path.Combine(AppContext.BaseDirectory, "artifacts",
+                                $"detached-{width}x{height}-frame{frame}.png");
+                            Directory.CreateDirectory(Path.GetDirectoryName(diagnostic)!);
+                            using var snapshot = SKImage.FromBitmap(bitmap);
+                            using var encoded = snapshot.Encode(SKEncodedImageFormat.Png, 100);
+                            using var stream = File.Create(diagnostic);
+                            encoded.SaveTo(stream);
+                            Require(false,
+                                $"Spectrum contains a detached broad upper mass on {width}x{height}: " +
+                                $"frame={frame}, bounds={left},{top}-{right},{bottom}, area={area}, core={solidCorePixels}, diagnostic={diagnostic}.");
+                        }
+                    }
+                }
+                // The latest reference contains a continuous narrow floor.
+                // With .15 valleys, the body must separate after its release
+                // settles. Allow 400 ms of the artificial all-band swap for
+                // the visible release; every 600 ms cycle must reopen valleys.
+                // bounds and detached-body checks still apply to every frame.
+                for (int y = height / 2; frame % 12 >= 8 && y < height - Math.Max(5, (int)Math.Ceiling(height * .20)); y++)
+                {
+                    int lit = 0;
+                    for (int x = 2; x < width - 2; x++)
+                    {
+                        var color = bitmap.GetPixel(x, y);
+                        // Classify the solid body, not its soft edge glow.
+                        if (Math.Max(color.Red, Math.Max(color.Green, color.Blue)) >= 130) lit++;
+                    }
+                    if (lit >= (width - 4) * .92f)
+                    {
+                        string diagnostic = Path.Combine(AppContext.BaseDirectory, "artifacts",
+                            $"shelf-{width}x{height}-frame{frame}-row{y}.png");
+                        Directory.CreateDirectory(Path.GetDirectoryName(diagnostic)!);
+                        using var snapshot = SKImage.FromBitmap(bitmap);
+                        using var encoded = snapshot.Encode(SKEncodedImageFormat.Png, 100);
+                        using var stream = File.Create(diagnostic);
+                        encoded.SaveTo(stream);
+                        Require(false,
+                            $"Spectrum formed a solid lower shelf on {width}x{height}: frame={frame}, row={y}, lit={lit}, diagnostic={diagnostic}.");
+                    }
+                }
+            }
+        }
+    }
 }
 
 static void CheckAuroraEnergy()

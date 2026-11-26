@@ -19,7 +19,7 @@ internal static class DocumentationPreview
         var aurora = new LyricsView(2008, 60) { Background = LyricsBackground.Aurora };
         var spectrum = new LyricsView(2008, 60) { Background = LyricsBackground.Spectrum };
         var off = new LyricsView(2008, 60) { Background = LyricsBackground.Off };
-        var analyzer = new AudioSpectrumAnalyzer(48000, 2);
+        var analyzer = new AudioSpectrumAnalyzer(48000, 2, referenceSpectrum: true);
         string[] modes = { "aurora", "spectrum" };
         foreach (string mode in modes) Directory.CreateDirectory(Path.Combine(output, mode + "-frames"));
         var clock = Stopwatch.StartNew();

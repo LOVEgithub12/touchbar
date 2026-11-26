@@ -1,6 +1,6 @@
 # Touch Bar for Windows
 
-**Media controls, F1–F12, synchronized lyrics and music visualization on an Apple Touch Bar running Windows.**
+**Media controls, F1–F12, synchronized lyrics music visualization and game monitoring on an Apple Touch Bar running Windows.**
 
 [简体中文](README.md) · **English**
 
@@ -16,6 +16,10 @@ This repository distributes **source code, required scripts, tests and documenta
 
 ![Media controls, function keys and three lyric background states](docs/images/overview.png)
 
+**Midnight City lyric preview · 18 seconds, 20 fps, GIF under 4 MB**
+
+![Midnight City Touch Bar preview](docs/images/midnight-city-demo.gif)
+
 **Live spectrum and layered particles · complete Touch Bar**
 
 ![Animated spectrum on the complete Touch Bar](docs/images/spectrum-demo.gif)
@@ -28,7 +32,7 @@ This repository distributes **source code, required scripts, tests and documenta
 
 ![Animated aurora ribbon background](docs/images/aurora-demo.gif)
 
-These are **offscreen renders of the current production views and renderers**, driven by synthetic audio and sample text. They are not hardware photographs and contain no personal music. Full panels retain the native 2008 × 60 aspect ratio; click an image to inspect the original. Hardware brightness, viewing distance and the GIF's 20 fps affect the perceived result. See [Development](docs/DEVELOPMENT.md#效果图复现--reproducing-the-previews) for reproduction steps.
+These are **offscreen renders of the current production views and renderers**. They are not hardware photographs. The Midnight City preview uses local song analysis and a lyric excerpt, without audio in the GIF; other demos use synthetic audio and sample text. Full panels retain the native 2008 × 60 aspect ratio; click an image to inspect the original. Hardware brightness, viewing distance and the GIF's 20 fps affect the perceived result. See [Development](docs/DEVELOPMENT.md#效果图复现--reproducing-the-previews) for reproduction steps.
 
 ## Features
 
@@ -36,17 +40,18 @@ These are **offscreen renders of the current production views and renderers**, d
 |---|---|
 | Media controls | Previous, play/pause, next, volume and mute; hold to repeat volume adjustments |
 | F1–F12 | Fixed **F / 1–12** button on the left of the media bar; explicit page selection and a left-side return button, independent of physical Fn state inference |
-| Display brightness | Windows brightness interface and native OSD, dependent on WMI/Boot Camp support |
+| Display brightness | Native Windows OSD, including first use before volume; dependent on WMI/Boot Camp support |
 | Keyboard backlight | Apple HID adjustment with no additional popup |
 | Synchronized lyrics | foobar2000 + foobox/JSplitter bridge, local LRC and embedded lyrics, single-line purple/blue karaoke highlighting |
 | Long and multilingual lyrics | 34 px text, reduced to 28 px if needed, then smooth scrolling; Chinese, English, Japanese and Korean font fallback |
 | Two music backgrounds | Aurora ribbons / live spectrum; tap the lyric area to cycle **Aurora → Spectrum → Off**, with persistent selection |
-| Live spectrum | 512 logarithmic bands with separate bass, midrange and treble response; independent particle layers dwell, fall and fade; this update increases vertical spread and visibility in the right half |
+| Live spectrum | 1024-point music-driven spectrum, multiscale FFT and calibrated response; reduced flicker, distinct midrange peaks, irregular contours and higher, longer-lived particles |
 | Side stardust | Both backgrounds retain side pulses and edge blending; slightly shorter lyric-page button backgrounds expose more light below |
+| Game monitoring | Full-path foreground detection, CPU/GPU temperature/load/clock, FPS and frame time, retained volume icons and a unified TrafficMonitor bridge |
 | Automatic pages | Active playback retains the media/lyric page; configured foreground browser shortcuts become available after pausing |
 | Temporary main bar | Tap the player icon to open the main bar; return to lyrics after four idle seconds from the last touch release, never while a finger is held |
 | Application shortcuts | Per-process buttons in `settings.json`, including Edge/Chrome examples and Explorer dialog support |
-| Startup recovery | Login startup, device readiness waits, retries and cancellation; a separate boot recovery tool targets a confirmed VBoxUSB Code 37 failure |
+| Startup recovery | Immediate logon task, windowless launcher, device readiness waits, retries and cancellation; a separate boot recovery tool targets a confirmed VBoxUSB Code 37 failure |
 
 See [Usage and features](docs/USAGE.en.md).
 
@@ -85,6 +90,7 @@ To update an existing installation, run `Stop.cmd`, build with `-PrepareRuntime`
 
 | Document | Contents |
 |---|---|
+| [Game monitoring](docs/GAMING.md) | Adding games, unified CPU/GPU bridge, metric definitions, PresentMon FPS and optional independent collection |
 | [Installation](docs/INSTALL.en.md) / [中文](docs/INSTALL.md) | Requirements, building, USB/IP, foobar2000, login startup, restoring Apple |
 | [Usage and features](docs/USAGE.en.md) / [中文](docs/USAGE.md) | Pages, lyrics, backgrounds, application shortcuts and troubleshooting |
 | [Development](docs/DEVELOPMENT.md) | Architecture, offline checks, reproducible previews and hardware acceptance limits; bilingual |

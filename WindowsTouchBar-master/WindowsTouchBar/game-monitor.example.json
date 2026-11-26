@@ -1,0 +1,21 @@
+[
+  {
+    "Id": "example-game",
+    "Name": "Example game",
+    "Icon": "Resources/Games/example.png",
+    "ExecutablePaths": [
+      "C:/Games/Example/Game.exe"
+    ]
+  },
+  {
+    "Id": "example-emulator",
+    "Name": "Example emulator title",
+    "Icon": "Resources/Games/emulator.png",
+    "ExecutablePaths": [
+      "C:/Games/Emulator/Emulator.exe"
+    ],
+    "WindowTitleContains": [
+      "Example game title"
+    ]
+  }
+]

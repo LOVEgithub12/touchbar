@@ -9,7 +9,13 @@
     <AppDependencies>$(AppSource)/bin/Release/net6.0-windows</AppDependencies>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="$(AppSource)/Gaming/*.cs" Link="App/Gaming/%(Filename)%(Extension)" />
+    <Content Include="$(AppSource)/Resources/Games/*.png" Link="Resources/Games/%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
+
+    <EmbeddedResource Include="$(AppSource)/Resources/spectrum-atlas-v3.json" Link="Resources/spectrum-atlas-v3.json" />
+    <EmbeddedResource Include="$(AppSource)/Resources/spectrum-response.json" Link="Resources/spectrum-response.json" />
     <None Include="$(AppSource)/Resources/foobar2000.png" Link="Resources/foobar2000.png" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="$(AppSource)/Resources/chrome.png" Link="Resources/chrome.png" CopyToOutputDirectory="PreserveNewest" />
     <None Include="$(AppSource)/Resources/aurora-ribbon-frames.png" Link="Resources/aurora-ribbon-frames.png" CopyToOutputDirectory="PreserveNewest" />
     <Compile Include="$(AppSource)/Components/Button.cs" Link="App/Button.cs" />
     <Compile Include="$(AppSource)/Components/PageToggleButton.cs" Link="App/PageToggleButton.cs" />
@@ -23,6 +29,7 @@
     <Compile Include="$(AppSource)/Audio/AudioEnergyFrame.cs" Link="App/AudioEnergyFrame.cs" />
     <Compile Include="$(AppSource)/Audio/AudioBandAnalyzer.cs" Link="App/AudioBandAnalyzer.cs" />
     <Compile Include="$(AppSource)/Audio/AudioSpectrumAnalyzer.cs" Link="App/AudioSpectrumAnalyzer.cs" />
+    <Compile Include="$(AppSource)/Audio/SpectrumResponse.cs" Link="App/SpectrumResponse.cs" />
     <Compile Include="$(AppSource)/Views/*.cs" Link="App/Views/%(Filename)%(Extension)" />
     <Compile Include="$(AppSource)/Helpers/ForegroundTracker.cs" Link="App/ForegroundTracker.cs" />
     <Compile Include="$(AppSource)/Helpers/LyricsFontResolver.cs" Link="App/LyricsFontResolver.cs" />

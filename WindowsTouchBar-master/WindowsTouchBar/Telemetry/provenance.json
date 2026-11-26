@@ -1,0 +1,16 @@
+{
+  "LibreHardwareMonitor": {
+    "LocalSource": "Existing TrafficMonitor installation",
+    "Version": "0.9.4+b8077435b898d57539956388cddf49f7dacb86f7",
+    "SHA256": "A0F2728F1734C236A9D02D9E25A88BC4F8CB7BD1FAFF1770726BEB7AF06BF8DC",
+    "UpstreamSource": "https://github.com/LibreHardwareMonitor/LibreHardwareMonitor/tree/b8077435b898d57539956388cddf49f7dacb86f7",
+    "Modified": false
+  },
+  "PresentMon": {
+    "Tag": "v2.6.0",
+    "Asset": "PresentMon-2.6.0-x64.exe",
+    "Source": "https://github.com/GameTechDev/PresentMon/releases/download/v2.6.0/PresentMon-2.6.0-x64.exe",
+    "SHA256": "B2A706BC6AD475749E3B7E3409263AA1E6906D45BDCF993F6DBC0F660188F1AF",
+    "Signature": "Valid"
+  }
+}

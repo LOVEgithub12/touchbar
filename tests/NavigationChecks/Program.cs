@@ -8,7 +8,12 @@ var checks = new (string Name, Action Run)[]
     ("Every touch phase restarts the idle interval", TouchRestartsIdle),
     ("A held finger prevents automatic page changes", HeldTouch),
     ("Pause clears manual navigation and resume shows lyrics", PauseResume),
-    ("Changing tracks while playing preserves the manual main page", TrackChange)
+    ("Changing tracks while playing preserves the manual main page", TrackChange),
+    ("Chrome main returns after four idle seconds without stale resurrection", BrowserNavigationChecks.IdleReturn),
+    ("Chrome main tracks holds, release, move and idle-boundary input", BrowserNavigationChecks.TouchTiming),
+    ("Chrome main is scoped to its foreground window and configured application", BrowserNavigationChecks.ForegroundScope),
+    ("Playback and explicit F page cancel Chrome main without reviving it", BrowserNavigationChecks.PlaybackAndFunctions),
+    ("Temporary browser main preserves playback, F-page and dialog priorities", BrowserNavigationChecks.ViewPriority)
 };
 int failures = 0;
 foreach (var check in checks)

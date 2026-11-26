@@ -70,7 +70,7 @@ internal sealed class AuroraRibbonRenderer
 
     public void Draw(SKCanvas canvas, float width, float height, double elapsedSeconds)
     {
-        if (width <= 0 || height <= 0) return;
+        if (width <= 0 || height <= 4) return;
         Advance(elapsedSeconds);
         if (!HasEnergy) return;
 
@@ -86,7 +86,7 @@ internal sealed class AuroraRibbonRenderer
         float profileHeight = CurrentRibbonHeightScale;
         float baseline = height * 0.5f;
         float destinationWidth = width * profileSpan;
-        float destinationHeight = FrameHeight * profileHeight;
+        float destinationHeight = Math.Min(FrameHeight * profileHeight, height - 3);
         var destination = SKRect.Create(
             (width - destinationWidth) / 2,
             baseline - destinationHeight / 2,
@@ -189,6 +189,11 @@ internal sealed class AuroraRibbonRenderer
                 ? height * (0.14f + trebleDrive * 0.31f + midDrive * 0.16f)
                 : height * (0.025f + voiceDrive * 0.035f);
             paint.StrokeWidth = centerWave ? 0.82f : 0.42f;
+            float shimmerAmplitude = (trebleDrive + midDrive * 0.28f) * (centerWave ? 0.9f : 0.25f);
+            // Fit the whole oscillation, including its stroke, before sampling it.
+            // Clamping individual vertices flattens loud crests against the bezel.
+            float room = Math.Max(0, Math.Min(centerY, height - centerY) - 1.5f - paint.StrokeWidth / 2);
+            float scale = Math.Min(1, room / (amplitude + shimmerAmplitude));
             for (int step = 0; step <= 96; step++)
             {
                 float u = step / 96f;
@@ -196,9 +201,8 @@ internal sealed class AuroraRibbonRenderer
                 float cycles = centerWave ? 1.22f : 1.7f + strand * 0.18f;
                 float envelope = 0.78f + 0.22f * MathF.Sin(u * MathF.PI);
                 float fine = MathF.Sin(u * MathF.Tau * cycles + phase) * amplitude * envelope;
-                float shimmerDrive = trebleDrive + midDrive * 0.28f;
-                float shimmer = MathF.Sin(u * MathF.Tau * 7.2f + phase * 1.4f) * shimmerDrive * (centerWave ? 0.9f : 0.25f);
-                float y = Math.Clamp(centerY + fine + shimmer, 1.5f, height - 1.5f);
+                float shimmer = MathF.Sin(u * MathF.Tau * 7.2f + phase * 1.4f) * shimmerAmplitude;
+                float y = centerY + (fine + shimmer) * scale;
                 if (step == 0) path.MoveTo(x, y); else path.LineTo(x, y);
             }
             byte alpha = centerWave ? (byte)(42 + 78 * voiceDrive) : (byte)(11 + 18 * voiceDrive);
@@ -221,6 +225,10 @@ internal sealed class AuroraRibbonRenderer
         const int segments = 72;
         float sway = bassDrive * height * 0.17f + midDrive * height * 0.13f + levelDrive * height * 0.035f;
         float halfWidth = 0.8f + bassDrive * height * 0.15f + midDrive * height * 0.075f + levelDrive * height * 0.02f;
+        // The filled ribbon needs room for its moving center and both edges.
+        float scale = Math.Min(1, (baseline - 1.5f) / (sway + halfWidth));
+        sway *= scale;
+        halfWidth *= scale;
         float phase = (float)(ribbonClock * 0.42);
         using var path = new SKPath();
         for (int step = 0; step <= segments; step++)
@@ -265,7 +273,9 @@ internal sealed class AuroraRibbonRenderer
             float edgeFade = SmoothStep(Math.Min(u, 1 - u) / 0.06f);
             float twinkle = 0.35f + 0.65f * (0.5f + 0.5f * MathF.Sin((float)(ribbonClock * (1.3 + index % 7 * 0.11) + index * 1.91)));
             float moteRadius = index % 7 == 0 ? 1.35f : 0.8f;
-            float radius = moteRadius * (0.92f + twinkle * 0.16f);
+            float radius = Math.Min(moteRadius * (0.92f + twinkle * 0.16f), (height / 2 - 1.5f) / 2.6f);
+            float margin = Math.Min(height / 2, radius * 2.6f + 1.5f);
+            float y = Math.Clamp(position.Y, margin, height - margin);
             SKColor color = ParticleColors[index % ParticleColors.Length];
             byte alpha = (byte)Math.Clamp((0.22f + levelDrive * 0.3f + trebleDrive * 0.42f + motion * 0.15f) *
                 (0.34f + twinkle * 0.66f) * edgeFade * 255, 0, 255);
@@ -273,8 +283,8 @@ internal sealed class AuroraRibbonRenderer
 
             glow.Color = color.WithAlpha((byte)(alpha * 0.5f));
             core.Color = color.WithAlpha(alpha);
-            canvas.DrawCircle(position.X, position.Y, radius * 2.6f, glow);
-            canvas.DrawCircle(position.X, position.Y, radius, core);
+            canvas.DrawCircle(position.X, y, radius * 2.6f, glow);
+            canvas.DrawCircle(position.X, y, radius, core);
         }
     }
 

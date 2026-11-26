@@ -7,5 +7,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="../../WindowsTouchBar-master/WindowsTouchBar/Lyrics/LyricsNavigation.cs" Link="LyricsNavigation.cs" />
+    <Compile Include="../../WindowsTouchBar-master/WindowsTouchBar/Views/BrowserMainNavigation.cs" Link="BrowserMainNavigation.cs" />
+    <Compile Include="../../WindowsTouchBar-master/WindowsTouchBar/Views/ForegroundViewPriority.cs" Link="ForegroundViewPriority.cs" />
   </ItemGroup>
 </Project>
