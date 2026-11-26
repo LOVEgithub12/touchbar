@@ -62,7 +62,7 @@ function Get-FakeApp([string]$directory) {
     if ($process.Path -ne (Join-Path $directory 'app\WindowsTouchBar.exe')) { return $null }
     return $process
 }
-function New-Fixture([string]$scenario) {
+function New-Fixture([string]$scenario, [int]$sessionId = 1, [bool]$elevated = $false) {
     $directory = Join-Path $fixtureRoot ([Guid]::NewGuid().ToString('N'))
     [void](New-Item -ItemType Directory -Path (Join-Path $directory 'app') -Force)
     [void]$fixtures.Add($directory)
@@ -72,6 +72,17 @@ function New-Fixture([string]$scenario) {
         $source = $source.Replace('Local\WindowsTouchBar.AutoStart.Cancel', ('Local\TouchBarLifecycle.Cancel.' + $identity))
         $source = $source.Replace('Local\WindowsTouchBar.AutoStart', ('Local\TouchBarLifecycle.Mutex.' + $identity))
         $source = $source.Replace('C:\Program Files\usbipd-win\usbipd.exe', (Join-Path $directory 'usbipd.exe'))
+        if ($name -eq 'AutoStart.ps1') {
+            # Hosted CI can be elevated or session zero. Replace only the observed
+            # identity values in this temporary copy, leaving the production guard
+            # intact and exercising both its accepted and rejected contexts below.
+            $adminAssignment = '$isAdmin = $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)'
+            $selfAssignment = '$self = Get-Process -Id $PID'
+            Require ($source.Contains($adminAssignment) -and $source.Contains($selfAssignment)) 'Startup context fixture needs updating.'
+            $adminValue = if ($elevated) { '$true' } else { '$false' }
+            $source = $source.Replace($adminAssignment, ('$isAdmin = ' + $adminValue))
+            $source = $source.Replace($selfAssignment, ('$self = [pscustomobject]@{ SessionId = ' + $sessionId + '; StartTime = [DateTime]::Now }'))
+        }
         # The production error path still runs and writes its log. Only the modal
         # message box is suppressed in the isolated launch-failure fixture.
         $source = [regex]::Replace($source, '(?m)^\s*\[void\]\[TouchBarLaunchMessage\]::MessageBox[^\r\n]*', '    # Test: suppress modal MessageBox.')
@@ -147,6 +158,18 @@ public static class FakeTouchBar {
 }
 '@ -OutputAssembly (Join-Path $fixtureRoot 'FakeTouchBar.exe') -OutputType ConsoleApplication
 
+    foreach ($context in @(
+        @{ Name = 'elevated'; SessionId = 1; Elevated = $true },
+        @{ Name = 'service-session'; SessionId = 0; Elevated = $false }
+    )) {
+        $rejected = New-Fixture 'normal' -sessionId $context.SessionId -elevated $context.Elevated
+        $helper = Start-IsolatedScript (Join-Path $rejected 'AutoStart.ps1')
+        Wait-ScriptExit $helper ('Startup did not reject ' + $context.Name) 1
+        Require ((Read-Text (Join-Path $rejected 'autostart.log')) -match 'ordinary logged-in desktop user token') 'Context rejection reason was not logged.'
+        Require (-not (Test-Path -LiteralPath (Join-Path $rejected 'app\launches.txt'))) 'Rejected context launched an app.'
+        Write-Output ('PASS: Startup rejects ' + $context.Name + ' before launching an application.')
+    }
+
     $waiting = New-Fixture 'waiting'
     $helper = Start-IsolatedScript (Join-Path $waiting 'AutoStart.ps1')
     Wait-Until { (Read-Text (Join-Path $waiting 'autostart.log')) -match 'Login startup requested' } 'Waiting helper did not start.'
@@ -204,7 +227,7 @@ public static class FakeTouchBar {
     Write-Output 'PASS: Manual launcher reports initialization failure instead of success.'
 
     Require ((Get-StartupPreference) -eq $originalPreference) 'Lifecycle tests changed the actual HKCU startup preference.'
-    Write-Output '4/4 isolated lifecycle checks passed under Windows PowerShell 5.1; actual startup preference unchanged.'
+    Write-Output '6/6 isolated lifecycle checks passed under Windows PowerShell 5.1; actual startup preference unchanged.'
 } finally {
     foreach ($process in $children) {
         try { if (-not $process.HasExited) { $process.Kill(); [void]$process.WaitForExit(2000) } } catch {}

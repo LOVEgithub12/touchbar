@@ -45,9 +45,9 @@ pwsh -NoProfile -File .\tools\Build.ps1
 pwsh -NoProfile -File .\tools\Build.ps1 -PrepareRuntime
 ```
 
-支持用 `-DotNetPath` 指定 SDK 可执行文件。默认先恢复 NuGet，再构建 Release；不要在全新克隆上跳过 restore。构建助手不启动应用，不改驱动；准备运行目录前需停止已运行的同路径程序。
+支持用 `-DotNetPath` 指定 SDK 可执行文件；`global.json` 固定 .NET 6.0.428（允许同 feature band 补丁），避免 CI 自动选择共存的新 SDK。默认先恢复 NuGet，再构建 Release；不要在全新克隆上跳过 restore。构建助手不启动应用，不改驱动；准备运行目录前需停止已运行的同路径程序。
 
-Use `-DotNetPath` for a custom SDK executable. Restore precedes the Release build; do not skip restore on a fresh clone. The helper does not launch the app or change drivers. Stop a running instance before preparing its runtime directory.
+Use `-DotNetPath` for a custom SDK executable. `global.json` selects .NET 6.0.428 with patch roll-forward, rather than a co-installed newer SDK. Restore precedes the Release build; do not skip restore on a fresh clone. The helper does not launch the app or change drivers. Stop a running instance before preparing its runtime directory.
 
 ## 自动检查 / Automated checks
 
@@ -68,7 +68,7 @@ pwsh -NoProfile -File .\tools\Check.ps1 -DotNetPath 'C:\path\dotnet.exe' -NodePa
 | FnKeyChecks | 保留的历史 Fn 推断 helper / Retained legacy Fn inference helper |
 | UsbIpHostChecks | 假本机 USB/IP 服务，序号分发、取消竞态、帧与触摸协议 / Fake local host, request routing, cancellation races, frame and touch protocol |
 | StartupChecks | UTF-8、stderr、错误/缺失 JSON、超时进程 / UTF-8, stderr, malformed/missing JSON and process timeout |
-| AutostartLifecycleChecks | PS5.1 隔离副本、启动取消、失败检测 / Isolated PS5.1 copies, cancellation and failure detection |
+| AutostartLifecycleChecks | PS5.1 隔离副本、普通/管理员/系统会话、启动取消和失败检测 / Isolated PS5.1 copies, ordinary/elevated/service contexts, cancellation and failure detection |
 | LoginTaskChecks / SensorAutostartChecks | 无窗口启动、任务配置、父进程匹配与退出约束；不注册真实任务 / Windowless launch, task configuration, parent matching and exit rules, without registering real tasks |
 | Test-FoobarBridge.cjs | 假 JSplitter、状态、命令去重/验证和重载 / Mock JSplitter state, command deduplication/validation and reload |
 
